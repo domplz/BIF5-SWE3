@@ -1,16 +1,15 @@
-import 'package:orm_framework/orm_framework.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('A group of tests', () {
-    final awesome = Awesome();
+    final awesome = true; 
 
     setUp(() {
       // Additional setup goes here.
     });
 
     test('First Test', () {
-      expect(awesome.isAwesome, isTrue);
+      expect(awesome, isTrue);
     });
   });
 }
