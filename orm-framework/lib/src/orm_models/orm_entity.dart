@@ -4,6 +4,11 @@ import 'dart:mirrors';
 class OrmEntity {
   OrmEntity(Type type){
     InstanceMirror instanceMirror = reflect(type);
+    if(instanceMirror.hasReflectee){
+      var metas = instanceMirror.reflectee;
+
+      
+    }
   }
 
   late Type member;
