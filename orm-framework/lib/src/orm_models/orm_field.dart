@@ -1,10 +1,12 @@
+import 'dart:mirrors';
+
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
 
 class OrmField {
   OrmField(this.entity);
 
   late OrmEntity entity;
-  late Function member;
+  late Mirror member;
   late Type type;
   late String columnName;
   late Type columnType;
