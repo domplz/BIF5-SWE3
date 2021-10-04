@@ -3,7 +3,7 @@ import 'package:orm_framework/src/orm.dart';
 import 'package:test/test.dart';
 
 void main() {
-  group('Test OrmField constructor', () {
+  group('Test Orm getEntity', () {
     setUp(() {});
 
     test('With Type', () {

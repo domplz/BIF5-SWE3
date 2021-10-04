@@ -28,7 +28,10 @@ class OrmEntity {
         OrmField field = OrmField(
           this,
           value,
-          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.runtimeType,
+          fieldAnnotation?.columnType ??
+              foreignKeyAnnotation?.columnType ??
+              primaryKeyAnnotation?.columnType ??
+              (value as VariableMirror).type.reflectedType,
           fieldAnnotation?.columnName ?? foreignKeyAnnotation?.columnName ?? primaryKeyAnnotation?.columnName ?? MirrorSystem.getName(key),
           fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.runtimeType,
           primaryKeyAnnotation != null,
