@@ -21,22 +21,22 @@ class OrmEntity {
 
       // for some reasone runTimeType == VariableMirror is not working
       if (!value.isPrivate && value.runtimeType.toString() == "_VariableMirror" && ignoreAnnotation == null) {
-        FieldAnnotation? fieldMetadata = _getAnnotationOrNull(value);
-        ForeignKeyAnnotation? foreignKeyMetadata = _getAnnotationOrNull(value);
-        PrimaryKeyAnnotation? primaryKeyMetadata = _getAnnotationOrNull<PrimaryKeyAnnotation>(value);
+        FieldAnnotation? fieldAnnotation = _getAnnotationOrNull(value);
+        ForeignKeyAnnotation? foreignKeyAnnotation = _getAnnotationOrNull(value);
+        PrimaryKeyAnnotation? primaryKeyAnnotation = _getAnnotationOrNull<PrimaryKeyAnnotation>(value);
 
         OrmField field = OrmField(
           this,
           value,
-          fieldMetadata?.columnType ?? foreignKeyMetadata?.columnType ?? primaryKeyMetadata?.columnType ?? value.runtimeType,
-          fieldMetadata?.columnName ?? foreignKeyMetadata?.columnName ?? primaryKeyMetadata?.columnName ?? MirrorSystem.getName(key),
-          fieldMetadata?.columnType ?? foreignKeyMetadata?.columnType ?? primaryKeyMetadata?.columnType ?? value.runtimeType,
-          primaryKeyMetadata != null,
-          foreignKeyMetadata != null,
-          fieldMetadata?.nullable ?? foreignKeyMetadata?.nullable ?? primaryKeyMetadata?.nullable ?? false,
+          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.runtimeType,
+          fieldAnnotation?.columnName ?? foreignKeyAnnotation?.columnName ?? primaryKeyAnnotation?.columnName ?? MirrorSystem.getName(key),
+          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.runtimeType,
+          primaryKeyAnnotation != null,
+          foreignKeyAnnotation != null,
+          fieldAnnotation?.nullable ?? foreignKeyAnnotation?.nullable ?? primaryKeyAnnotation?.nullable ?? false,
         );
 
-        if (primaryKeyMetadata != null) {
+        if (primaryKeyAnnotation != null) {
           primaryKey = field;
         }
 
