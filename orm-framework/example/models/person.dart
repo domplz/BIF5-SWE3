@@ -1,23 +1,23 @@
-import 'package:orm_framework/src/orm_metadata/entity_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/field_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/ignore_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/primary_key_metadata.dart';
+import 'package:orm_framework/src/annotations/entity_annotation.dart';
+import 'package:orm_framework/src/annotations/field_annotation.dart';
+import 'package:orm_framework/src/annotations/ignore_annotation.dart';
+import 'package:orm_framework/src/annotations/primarykey_annotation.dart';
 
 import 'gender.dart';
 
-@EntityMetadata("PERSONS")
+@EntityAnnotation("PERSONS")
 class Person {
   int _instanceNumber = 0;
 
-  @PrimaryKeyMetadata()
+  @PrimaryKeyAnnotation()
   late String id;
   late String name;
   late String firstName;
-  @FieldMetadata("BDate")
+  @FieldAnnotation("BDate")
   late DateTime birthDate;
   late Gender gender;
 
-  @IgnoreMetadata()
+  @IgnoreAnnotation()
   int get instanceNumber {
     return _instanceNumber++;
   }

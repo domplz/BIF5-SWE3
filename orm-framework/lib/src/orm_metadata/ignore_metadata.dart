@@ -1,3 +1,0 @@
-class IgnoreMetadata {
-  const IgnoreMetadata();
-}

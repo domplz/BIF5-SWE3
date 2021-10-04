@@ -1,0 +1,3 @@
+class IgnoreAnnotation {
+  const IgnoreAnnotation();
+}

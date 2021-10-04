@@ -1,8 +1,8 @@
-import 'package:orm_framework/src/orm_metadata/entity_metadata.dart';
+import 'package:orm_framework/src/annotations/entity_annotation.dart';
 
 import 'person.dart';
 
-@EntityMetadata("STUDENTS")
+@EntityAnnotation("STUDENTS")
 class Student extends Person {
   late int grade;
 }

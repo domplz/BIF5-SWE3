@@ -1,14 +1,14 @@
-import 'package:orm_framework/src/orm_metadata/entity_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/foreign_key_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/primary_key_metadata.dart';
+import 'package:orm_framework/src/annotations/entity_annotation.dart';
+import 'package:orm_framework/src/annotations/foreignkey_annotation.dart';
+import 'package:orm_framework/src/annotations/primarykey_annotation.dart';
 
 import 'teacher.dart';
 
-@EntityMetadata("COURSES")
+@EntityAnnotation("COURSES")
 class Course {
-  @PrimaryKeyMetadata()
+  @PrimaryKeyAnnotation()
   late String id;
   late String name;
-  @ForeignKeyMetadata("KTEACHER")
+  @ForeignKeyAnnotation("KTEACHER")
   late Teacher teacher;
 }
