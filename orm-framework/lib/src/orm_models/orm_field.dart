@@ -6,7 +6,7 @@ class OrmField {
   OrmField(this.entity);
 
   late OrmEntity entity;
-  late Mirror member;
+  late DeclarationMirror member;
   late Type type;
   late String columnName;
   late Type columnType;
