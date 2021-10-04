@@ -10,64 +10,67 @@ import 'package:collection/collection.dart';
 class OrmEntity {
   OrmEntity(Type type) {
     member = reflectClass(type);
+    fields = [];
 
-    final ClassMirror metadataClassMirror = reflectClass(EntityMetadata);
-    final InstanceMirror? annotationInstsanceMirror = member.metadata.firstWhereOrNull((d) => d.type == metadataClassMirror);
+    EntityMetadata? entityAnnotation = _getMetadataOrNull<EntityMetadata>(member);
 
     String? tableNameOfEntity;
     // if annotationInstsanceMirror is null, the annotation is no present
-    if (annotationInstsanceMirror != null && (annotationInstsanceMirror.reflectee as EntityMetadata).tableName != null) {
-      tableNameOfEntity = (annotationInstsanceMirror.reflectee as EntityMetadata).tableName;
+    if (entityAnnotation != null && entityAnnotation.tableName != null) {
+      tableNameOfEntity = entityAnnotation.tableName;
     }
 
     if (tableNameOfEntity == null) {
+      // if it could not be retrieved from the annotation, use the class name
       tableName = MirrorSystem.getName(member.simpleName).toUpperCase();
     } else {
       tableName = tableNameOfEntity;
     }
 
-    List<OrmField> fieldList = <OrmField>[];
-
     final ClassMirror classClassMirror = reflectClass(type);
     classClassMirror.declarations.forEach((key, value) {
-      final ClassMirror ignoreMetadataClassMirror = reflectClass(IgnoreMetadata);
-      final bool isIgnored = member.metadata.firstWhereOrNull((d) => d.type == ignoreMetadataClassMirror) != null;
+      IgnoreMetadata? ignoreAnnotation = _getMetadataOrNull<IgnoreMetadata>(value);
 
-      if (!value.isPrivate && !isIgnored) {
+      if (!value.isPrivate && ignoreAnnotation == null) {
         OrmField field = OrmField(this);
 
-        final ClassMirror fieldMetadataClassMirror = reflectClass(FieldMetadata);
-        final InstanceMirror? fieldInstanceMirror = member.metadata.firstWhereOrNull((d) => d.type == fieldMetadataClassMirror);
+        FieldMetadata? fieldMetadata = _getMetadataOrNull(value);
 
-        if (fieldInstanceMirror != null) {
-          field.columnName = (fieldInstanceMirror.reflectee as FieldMetadata).columnName ?? MirrorSystem.getName(key);
-          field.columnType = (fieldInstanceMirror.reflectee as FieldMetadata).columnType ?? value.runtimeType;
-          field.isNullable = (fieldInstanceMirror.reflectee as FieldMetadata).nullable ?? false;
+        if (fieldMetadata != null) {
+          field.columnName = fieldMetadata.columnName ?? MirrorSystem.getName(key);
+          field.columnType = fieldMetadata.columnType ?? value.runtimeType;
+          field.isNullable = fieldMetadata.nullable ?? false;
         } else {
           field.columnName = MirrorSystem.getName(key);
           field.columnType = value.runtimeType;
           field.isNullable = false;
         }
 
-        final ClassMirror primaryKeyMetadataClassMirror = reflectClass(PrimaryKeyMetadata);
-        final bool isPrimary = member.metadata.firstWhereOrNull((d) => d.type == primaryKeyMetadataClassMirror) != null;
+        PrimaryKeyMetadata? primaryKeyMetadata = _getMetadataOrNull<PrimaryKeyMetadata>(value);
+        final bool isPrimary = primaryKeyMetadata != null;
 
-        final ClassMirror foreignKeyMetadataClassMirror = reflectClass(ForeignKeyMetadata);
-        final bool isForeignKey = member.metadata.firstWhereOrNull((d) => d.type == foreignKeyMetadataClassMirror) != null;
+        ForeignKeyMetadata? foreignKeyMetadata = _getMetadataOrNull(value);
+        final bool isForeignKey = foreignKeyMetadata != null;
 
         field.isPrimaryKey = isPrimary;
         field.isForeignKey = isForeignKey;
         field.member = value;
 
-        fieldList.add(field);
+        fields.add(field);
       }
     });
-
-    fields = fieldList;
   }
 
   late DeclarationMirror member;
   late String tableName;
   late List<OrmField> fields;
   late OrmField primaryKey;
+
+  T? _getMetadataOrNull<T>(DeclarationMirror mirror) {
+    final ClassMirror annotationClassMirror = reflectClass(T);
+    InstanceMirror? instanceMirror = mirror.metadata.firstWhereOrNull((d) => d.type == annotationClassMirror);
+    if (instanceMirror != null) {
+      return instanceMirror.reflectee as T;
+    }
+  }
 }
