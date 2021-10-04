@@ -23,7 +23,6 @@ class OrmEntity {
       if (!value.isPrivate && value.runtimeType.toString() == "_VariableMirror" && ignoreAnnotation == null) {
         FieldMetadata? fieldMetadata = _getMetadataOrNull(value);
         ForeignKeyMetadata? foreignKeyMetadata = _getMetadataOrNull(value);
-
         PrimaryKeyMetadata? primaryKeyMetadata = _getMetadataOrNull<PrimaryKeyMetadata>(value);
 
         OrmField field = OrmField(
@@ -36,6 +35,10 @@ class OrmEntity {
           foreignKeyMetadata != null,
           fieldMetadata?.nullable ?? foreignKeyMetadata?.nullable ?? primaryKeyMetadata?.nullable ?? false,
         );
+
+        if (primaryKeyMetadata != null) {
+          primaryKey = field;
+        }
 
         fields.add(field);
       }
