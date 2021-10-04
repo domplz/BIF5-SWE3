@@ -1,18 +1,18 @@
-import 'package:orm_framework/src/orm_metadata/entity_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/field_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/foreign_key_metadata.dart';
+import 'package:orm_framework/src/annotations/entity_annotation.dart';
+import 'package:orm_framework/src/annotations/field_annotation.dart';
+import 'package:orm_framework/src/annotations/foreignkey_annotation.dart';
 
 import 'class.dart';
 import 'course.dart';
 import 'person.dart';
 
-@EntityMetadata("CLASSES")
+@EntityAnnotation("CLASSES")
 class Teacher extends Person {
   late int salary;
-  @FieldMetadata("HDATE")
+  @FieldAnnotation("HDATE")
   late DateTime hireDate;
-  @ForeignKeyMetadata("KTEACHER")
+  @ForeignKeyAnnotation("KTEACHER")
   late List<Class> classes;
-  @ForeignKeyMetadata("KTEACHER")
+  @ForeignKeyAnnotation("KTEACHER")
   late List<Course> courses;
 }

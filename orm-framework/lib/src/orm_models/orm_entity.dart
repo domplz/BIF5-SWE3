@@ -1,8 +1,8 @@
-import 'package:orm_framework/src/orm_metadata/entity_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/field_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/foreign_key_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/ignore_metadata.dart';
-import 'package:orm_framework/src/orm_metadata/primary_key_metadata.dart';
+import 'package:orm_framework/src/annotations/entity_annotation.dart';
+import 'package:orm_framework/src/annotations/field_annotation.dart';
+import 'package:orm_framework/src/annotations/foreignkey_annotation.dart';
+import 'package:orm_framework/src/annotations/ignore_annotation.dart';
+import 'package:orm_framework/src/annotations/primarykey_annotation.dart';
 import 'package:orm_framework/src/orm_models/orm_field.dart';
 import 'dart:mirrors';
 import 'package:collection/collection.dart';
@@ -12,18 +12,18 @@ class OrmEntity {
     member = reflectClass(type);
     fields = [];
 
-    EntityMetadata? entityAnnotation = _getMetadataOrNull<EntityMetadata>(member);
+    EntityAnnotation? entityAnnotation = _getAnnotationOrNull<EntityAnnotation>(member);
     tableName = entityAnnotation?.tableName ?? MirrorSystem.getName(member.simpleName).toUpperCase();
 
     final ClassMirror classClassMirror = reflectClass(type);
     classClassMirror.declarations.forEach((key, value) {
-      IgnoreMetadata? ignoreAnnotation = _getMetadataOrNull<IgnoreMetadata>(value);
+      IgnoreAnnotation? ignoreAnnotation = _getAnnotationOrNull<IgnoreAnnotation>(value);
 
       // for some reasone runTimeType == VariableMirror is not working
       if (!value.isPrivate && value.runtimeType.toString() == "_VariableMirror" && ignoreAnnotation == null) {
-        FieldMetadata? fieldMetadata = _getMetadataOrNull(value);
-        ForeignKeyMetadata? foreignKeyMetadata = _getMetadataOrNull(value);
-        PrimaryKeyMetadata? primaryKeyMetadata = _getMetadataOrNull<PrimaryKeyMetadata>(value);
+        FieldAnnotation? fieldMetadata = _getAnnotationOrNull(value);
+        ForeignKeyAnnotation? foreignKeyMetadata = _getAnnotationOrNull(value);
+        PrimaryKeyAnnotation? primaryKeyMetadata = _getAnnotationOrNull<PrimaryKeyAnnotation>(value);
 
         OrmField field = OrmField(
           this,
@@ -50,7 +50,7 @@ class OrmEntity {
   late List<OrmField> fields;
   late OrmField primaryKey;
 
-  T? _getMetadataOrNull<T>(DeclarationMirror mirror) {
+  T? _getAnnotationOrNull<T>(DeclarationMirror mirror) {
     final ClassMirror annotationClassMirror = reflectClass(T);
     InstanceMirror? instanceMirror = mirror.metadata.firstWhereOrNull((d) => d.type == annotationClassMirror);
     if (instanceMirror != null) {
