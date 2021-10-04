@@ -13,48 +13,29 @@ class OrmEntity {
     fields = [];
 
     EntityMetadata? entityAnnotation = _getMetadataOrNull<EntityMetadata>(member);
-
-    String? tableNameOfEntity;
-    // if annotationInstsanceMirror is null, the annotation is no present
-    if (entityAnnotation != null && entityAnnotation.tableName != null) {
-      tableNameOfEntity = entityAnnotation.tableName;
-    }
-
-    if (tableNameOfEntity == null) {
-      // if it could not be retrieved from the annotation, use the class name
-      tableName = MirrorSystem.getName(member.simpleName).toUpperCase();
-    } else {
-      tableName = tableNameOfEntity;
-    }
+    tableName = entityAnnotation?.tableName ?? MirrorSystem.getName(member.simpleName).toUpperCase();
 
     final ClassMirror classClassMirror = reflectClass(type);
     classClassMirror.declarations.forEach((key, value) {
       IgnoreMetadata? ignoreAnnotation = _getMetadataOrNull<IgnoreMetadata>(value);
 
-      if (!value.isPrivate && ignoreAnnotation == null) {
-        OrmField field = OrmField(this);
-
+      // for some reasone runTimeType == VariableMirror is not working
+      if (!value.isPrivate && value.runtimeType.toString() == "_VariableMirror" && ignoreAnnotation == null) {
         FieldMetadata? fieldMetadata = _getMetadataOrNull(value);
-
-        if (fieldMetadata != null) {
-          field.columnName = fieldMetadata.columnName ?? MirrorSystem.getName(key);
-          field.columnType = fieldMetadata.columnType ?? value.runtimeType;
-          field.isNullable = fieldMetadata.nullable ?? false;
-        } else {
-          field.columnName = MirrorSystem.getName(key);
-          field.columnType = value.runtimeType;
-          field.isNullable = false;
-        }
+        ForeignKeyMetadata? foreignKeyMetadata = _getMetadataOrNull(value);
 
         PrimaryKeyMetadata? primaryKeyMetadata = _getMetadataOrNull<PrimaryKeyMetadata>(value);
-        final bool isPrimary = primaryKeyMetadata != null;
 
-        ForeignKeyMetadata? foreignKeyMetadata = _getMetadataOrNull(value);
-        final bool isForeignKey = foreignKeyMetadata != null;
-
-        field.isPrimaryKey = isPrimary;
-        field.isForeignKey = isForeignKey;
-        field.member = value;
+        OrmField field = OrmField(
+          this,
+          value,
+          fieldMetadata?.columnType ?? foreignKeyMetadata?.columnType ?? primaryKeyMetadata?.columnType ?? value.runtimeType,
+          fieldMetadata?.columnName ?? foreignKeyMetadata?.columnName ?? primaryKeyMetadata?.columnName ?? MirrorSystem.getName(key),
+          fieldMetadata?.columnType ?? foreignKeyMetadata?.columnType ?? primaryKeyMetadata?.columnType ?? value.runtimeType,
+          primaryKeyMetadata != null,
+          foreignKeyMetadata != null,
+          fieldMetadata?.nullable ?? foreignKeyMetadata?.nullable ?? primaryKeyMetadata?.nullable ?? false,
+        );
 
         fields.add(field);
       }

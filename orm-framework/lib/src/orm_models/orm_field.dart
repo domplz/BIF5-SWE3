@@ -3,14 +3,14 @@ import 'dart:mirrors';
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
 
 class OrmField {
-  OrmField(this.entity);
+  OrmField(this.entity, this.member, this.type, this.columnName, this.columnType, this.isPrimaryKey, this.isForeignKey, this.isNullable);
 
-  late OrmEntity entity;
-  late DeclarationMirror member;
-  late Type type;
-  late String columnName;
-  late Type columnType;
-  late bool isPrimaryKey = false;
-  late bool isForeignKey = false;
-  late bool isNullable = false;
+  OrmEntity entity;
+  DeclarationMirror member;
+  Type type;
+  String columnName;
+  Type columnType;
+  bool isPrimaryKey;
+  bool isForeignKey;
+  bool isNullable;
 }
