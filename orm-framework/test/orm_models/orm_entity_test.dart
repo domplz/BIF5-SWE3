@@ -9,9 +9,6 @@ void main() {
     });
 
     test('With Type', () {
-      expect(TestClass, isNotNull);
-    });
-    test('With Instance', () {
       expect(OrmEntity(TestClass), isNotNull);
     });
   });
