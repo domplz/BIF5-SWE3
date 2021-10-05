@@ -15,8 +15,16 @@ class OrmEntity {
     EntityAnnotation? entityAnnotation = _getAnnotationOrNull<EntityAnnotation>(member);
     tableName = entityAnnotation?.tableName ?? MirrorSystem.getName(member.simpleName).toUpperCase();
 
-    final ClassMirror classClassMirror = reflectClass(type);
-    classClassMirror.declarations.forEach((key, value) {
+    ClassMirror classMirror = (member as ClassMirror);
+    var declarations = Map<Symbol, DeclarationMirror>.from(classMirror.declarations);
+
+    while(classMirror.superclass != null){
+      declarations.addAll(classMirror.superclass!.declarations);
+      classMirror = classMirror.superclass!;
+    }
+
+
+    declarations.forEach((key, value) {
       IgnoreAnnotation? ignoreAnnotation = _getAnnotationOrNull<IgnoreAnnotation>(value);
 
       // for some reasone runTimeType == VariableMirror is not working
