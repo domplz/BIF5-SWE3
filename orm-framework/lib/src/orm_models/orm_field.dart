@@ -16,33 +16,63 @@ class OrmField {
   bool isForeignKey;
   bool isNullable;
 
-  toColumnType(Object value){
+  // is needed as string for parameter bindings
+  String toColumnType(Object value){
     if(isForeignKey){
       return Orm.getEntity(type).primaryKey.toColumnType(
         Orm.getEntity(type).primaryKey.getValue(value)
         );
     }
-    if(type == columnType){
-      return value;
+    
+    // handle enums
+    if(reflectClass(columnType).isEnum){
+      // returns integer
+      return (value as Enum).index.toString();
     }
+    
+    if(type == columnType){
+      return value.toString();
+    }
+
+    // handle different field types
     if(value == bool){
       if(columnType == int){
-        return (value as bool) ? 1 : 0;
+        return ((value as bool) ? 1 : 0).toString();
       }
     }
 
-    return value;
+    return value.toString();
   }
 
-  toFieldType(Object value){
+  toFieldType(Object? value){
     if(type == bool){
+      if(value == null && !isNullable){
+        return false;
+      }
       if(value is int){
         return value != 0;
       }
     }
+    
     if(type == int){
+      if(value == null && !isNullable){
+        return 0;
+      }
       return value as int;
     }
+
+    if(type == DateTime){
+      if(value == null && !isNullable){
+        return DateTime(0);
+      }
+
+      return DateTime.parse(value.toString());
+    }
+    
+    // todo, cannot find a way to set an enum via reflection
+    // if(reflectClass(type).isEnum){
+    //   return value;
+    // }
     
     return value;
   }

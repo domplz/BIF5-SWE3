@@ -50,7 +50,7 @@ class Orm {
       }
       commandText += entity.fields[i].columnName;
       insert += "?";
-      parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object).toString()));
+      parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object)));
     }
     
     for (int i = 0; i < entity.fields.length; i++){
@@ -62,7 +62,7 @@ class Orm {
           update += ", ";
         }
         update += "${entity.fields[i].columnName} = ?";
-        parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object).toString()));
+        parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object)));
       }
     }
     commandText += ") VALUES ( $insert ) $update";
@@ -93,7 +93,7 @@ class Orm {
   }
 
   static Object _createObject(Type t, Object primaryKey){
-    String commandText = Orm.getEntity(t).getSql() + " WHERE " + Orm.getEntity(t).primaryKey.columnName + " = :pk ";
+    String commandText = Orm.getEntity(t).getSql() + " WHERE " + Orm.getEntity(t).primaryKey.columnName + " = ? ";
     ResultSet resultSet = database.select(commandText, [primaryKey]);
 
       if(resultSet.length != 1){
@@ -104,19 +104,20 @@ class Orm {
   }
 
   static Object _createObjectFromRow(Type type, Row row){
-    // todo this !!
     late InstanceMirror instance;
     var typeMirror = reflectType(type);
     if (typeMirror is ClassMirror) {
-       instance = typeMirror.newInstance(Symbol(""), const []).reflectee;
+       instance = typeMirror.newInstance(Symbol(""), const []);
     } else {
       throw ArgumentError("Cannot create the instance of the type '$type'.");
     }
     
-    Orm.getEntity(type).fields.forEach((element) {
+    var entityFields = Orm.getEntity(type).fields;
+
+    for (var element in entityFields) {
       
-      instance.setField(Symbol(element.columnName), element.toFieldType([element.columnName]));
-    });
+      instance.setField(element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()]));
+    }
 
     return instance;
   }

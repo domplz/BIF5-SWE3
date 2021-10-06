@@ -41,7 +41,7 @@ class OrmEntity {
               primaryKeyAnnotation?.columnType ??
               value.type.reflectedType,
           fieldAnnotation?.columnName ?? foreignKeyAnnotation?.columnName ?? primaryKeyAnnotation?.columnName ?? MirrorSystem.getName(key),
-          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.runtimeType,
+          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.type.reflectedType,
           primaryKeyAnnotation != null,
           foreignKeyAnnotation != null,
           fieldAnnotation?.nullable ?? foreignKeyAnnotation?.nullable ?? primaryKeyAnnotation?.nullable ?? false,
