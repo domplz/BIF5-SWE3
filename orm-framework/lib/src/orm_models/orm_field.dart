@@ -8,7 +8,7 @@ class OrmField {
   OrmField(this.entity, this.member, this.type, this.columnName, this.columnType, this.isPrimaryKey, this.isForeignKey, this.isNullable);
 
   OrmEntity entity;
-  DeclarationMirror member;
+  VariableMirror member;
   Type type;
   String columnName;
   Type columnType;
@@ -18,7 +18,9 @@ class OrmField {
 
   toColumnType(Object value){
     if(isForeignKey){
-      return Orm.getEntity(type).primaryKey.toColumnType(Orm.getEntity(type).primaryKey.getValue());
+      return Orm.getEntity(type).primaryKey.toColumnType(
+        Orm.getEntity(type).primaryKey.getValue(value)
+        );
     }
     if(type == columnType){
       return value;
@@ -45,17 +47,17 @@ class OrmField {
     return value;
   }
   
-  Object getValue(){
+  Object getValue(Object object){
     if(member.runtimeType.toString() == "_VariableMirror"){
-      InstanceMirror instanceMirror = reflect(member);
-      return instanceMirror.getField(member.simpleName);
+      InstanceMirror instanceMirror = reflect(object);
+      return instanceMirror.getField(member.simpleName).reflectee;
     }
     throw Exception("Other types than VariableMirrors are not supportet for getValue!");
   }
 
-  void setValue(Object value){
+  void setValue(Object object, Object value){
     if(member.runtimeType.toString() == "_VariableMirror"){
-      InstanceMirror instanceMirror = reflect(member);
+      InstanceMirror instanceMirror = reflect(object);
       instanceMirror.setField(member.simpleName, value);
     }
     throw Exception("Other types than VariableMirrors are not supportet for setValue!");

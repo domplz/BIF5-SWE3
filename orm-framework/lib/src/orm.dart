@@ -36,12 +36,38 @@ class Orm {
     
     OrmEntity entity = Orm.getEntity(object);
 
-    final stmt = database.prepare('INSERT INTO artists (name) VALUES (?)');
-    stmt
-      ..execute(['The Beatles'])
-      ..execute(['Led Zeppelin'])
-      ..execute(['The Who'])
-      ..execute(['Nirvana']);
+    String commandText = "INSERT INTO ${entity.tableName} (";
+
+    String update = "ON CONFLICT (${entity.primaryKey.columnName}) DO UPDATE SET ";
+    String insert = "";
+
+    List<String> parameters = <String>[];
+    bool firstNonPrimaryKey = true;
+    for (int i = 0; i < entity.fields.length; i++){
+      if(i > 0){
+        commandText += ", ";
+        insert += ", ";
+      }
+      commandText += entity.fields[i].columnName;
+      insert += "?";
+      parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object).toString()));
+    }
+    
+    for (int i = 0; i < entity.fields.length; i++){
+      if(!entity.fields[i].isPrimaryKey){
+        if(firstNonPrimaryKey){
+          firstNonPrimaryKey = false;
+        }
+        else{
+          update += ", ";
+        }
+        update += "${entity.fields[i].columnName} = ?";
+        parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object).toString()));
+      }
+    }
+    commandText += ") VALUES ( $insert ) $update";
+
+    database.execute(commandText, parameters);
   }
 
   static T get<T>(Object primaryKey){
@@ -78,7 +104,7 @@ class Orm {
   }
 
   static Object _createObjectFromRow(Type type, Row row){
-    
+    // todo this !!
     late InstanceMirror instance;
     var typeMirror = reflectType(type);
     if (typeMirror is ClassMirror) {

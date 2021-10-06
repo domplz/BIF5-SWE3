@@ -9,7 +9,7 @@ void main() {
   group('Test OrmField constructor', () {
     OrmField? fieldInstance;
     setUp(() {
-      fieldInstance = OrmField(OrmEntity(TestClass), reflectClass(TestClass), TestClass, "TestClass", TestClass, false, false, false);
+      fieldInstance = OrmField(OrmEntity(TestClass), reflectClass(TestClass).declarations.values.first as VariableMirror, TestClass, "TestClass", TestClass, false, false, false);
     });
 
     test('To be not null', () {
