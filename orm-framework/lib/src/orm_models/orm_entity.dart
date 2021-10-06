@@ -61,6 +61,21 @@ class OrmEntity {
   late List<OrmField> fields;
   late OrmField primaryKey;
 
+  String getSql({String prefix = ""}){
+    String selectStatement = "Select ";
+    for(int i = 0; i < fields.length; i++){
+      // add ", " in front of the value after the first
+      if(i>0){
+        selectStatement += ", ";
+      }
+      selectStatement += prefix.trim() + fields[i].columnName;
+    }
+
+    selectStatement += " FROM " + tableName;
+
+    return selectStatement;
+  }
+
   T? _getAnnotationOrNull<T>(DeclarationMirror mirror) {
     final ClassMirror annotationClassMirror = reflectClass(T);
     InstanceMirror? instanceMirror = mirror.metadata.firstWhereOrNull((d) => d.type == annotationClassMirror);
