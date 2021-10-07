@@ -11,9 +11,9 @@ import 'models/teacher.dart';
 void main() {
   OrmDemo().show();
 }
-  
+
 class OrmDemo {
-  show(){
+  show() {
     open.overrideFor(OperatingSystem.windows, _openOnWindows);
 
     Orm.database = sqlite3.open("test.sqlite");
@@ -24,16 +24,16 @@ class OrmDemo {
     t.birthDate = DateTime(2987, 1, 14);
     t.firstName = "Seppi";
     t.gender = Gender.male;
-    t.id = "t.0";
+    t.id = "t.1";
     t.name = "Forcher";
 
     Orm.save(t);
 
-    Orm.getAll<Teacher>();
+    var teachers = Orm.getAll<Teacher>();
     // Use the database
     Orm.database.dispose();
   }
-  
+
   DynamicLibrary _openOnWindows() {
     final scriptDir = File(Platform.script.toFilePath()).parent.parent;
     final libraryNextToScript = File('${scriptDir.path}\\sqlite3.dll');
