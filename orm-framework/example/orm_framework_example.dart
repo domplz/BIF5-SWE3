@@ -30,6 +30,7 @@ class OrmDemo {
     Orm.save(t);
 
     var teachers = Orm.getAll<Teacher>();
+    var teacherForId = Orm.get<Teacher>(t.id);
     // Use the database
     Orm.database.dispose();
   }
