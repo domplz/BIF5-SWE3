@@ -72,7 +72,18 @@ class OrmField {
       late InstanceMirror instance;
       var typeMirror = reflectType(type);
       if (typeMirror is ClassMirror) {
-        instance = typeMirror.newInstance(Symbol(""), [value, ""]);
+        List<String> enumValues = <String>[];
+        for (var element in typeMirror.declarations.values) {
+          if (MirrorSystem.getName(element.simpleName) != "index" &&
+              MirrorSystem.getName(element.simpleName) != "_name" &&
+              MirrorSystem.getName(element.simpleName) != "values" &&
+              MirrorSystem.getName(element.simpleName) != "toString" &&
+              MirrorSystem.getName(element.simpleName) != MirrorSystem.getName(typeMirror.simpleName)) {
+            enumValues.add(MirrorSystem.getName(element.simpleName));
+          }
+        }
+
+        instance = typeMirror.newInstance(Symbol(""), [value, enumValues[value as int]]);
         return instance.reflectee;
       } else {
         throw ArgumentError("Cannot create the instance of the type '$type'.");
