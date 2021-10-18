@@ -15,7 +15,7 @@ class OrmEntity {
     EntityAnnotation? entityAnnotation = _getAnnotationOrNull<EntityAnnotation>(member);
     tableName = entityAnnotation?.tableName ?? MirrorSystem.getName(member.simpleName).toUpperCase();
 
-    ClassMirror classMirror = (member as ClassMirror);
+    ClassMirror classMirror = member;
     var declarations = Map<Symbol, DeclarationMirror>.from(classMirror.declarations);
 
     while(classMirror.superclass != null){
@@ -35,13 +35,13 @@ class OrmEntity {
 
         OrmField field = OrmField(
           this,
-          value,
+          value as VariableMirror,
           fieldAnnotation?.columnType ??
               foreignKeyAnnotation?.columnType ??
               primaryKeyAnnotation?.columnType ??
-              (value as VariableMirror).type.reflectedType,
+              value.type.reflectedType,
           fieldAnnotation?.columnName ?? foreignKeyAnnotation?.columnName ?? primaryKeyAnnotation?.columnName ?? MirrorSystem.getName(key),
-          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.runtimeType,
+          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.type.reflectedType,
           primaryKeyAnnotation != null,
           foreignKeyAnnotation != null,
           fieldAnnotation?.nullable ?? foreignKeyAnnotation?.nullable ?? primaryKeyAnnotation?.nullable ?? false,
@@ -56,10 +56,25 @@ class OrmEntity {
     });
   }
 
-  late DeclarationMirror member;
+  late ClassMirror member;
   late String tableName;
   late List<OrmField> fields;
   late OrmField primaryKey;
+
+  String getSql({String prefix = ""}){
+    String selectStatement = "Select ";
+    for(int i = 0; i < fields.length; i++){
+      // add ", " in front of the value after the first
+      if(i>0){
+        selectStatement += ", ";
+      }
+      selectStatement += prefix.trim() + fields[i].columnName;
+    }
+
+    selectStatement += " FROM " + tableName;
+
+    return selectStatement;
+  }
 
   T? _getAnnotationOrNull<T>(DeclarationMirror mirror) {
     final ClassMirror annotationClassMirror = reflectClass(T);
