@@ -5,6 +5,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'dart:ffi';
 import 'dart:io';
 
+import 'models/class.dart';
 import 'models/gender.dart';
 import 'models/teacher.dart';
 
@@ -15,6 +16,7 @@ void main() {
   var demo = OrmDemo();
   demo.showInsert();
   demo.showSelect();
+  demo.showWithForeignKey();
 
   Orm.database.dispose();
 }
@@ -42,5 +44,18 @@ class OrmDemo {
   showSelect() {
     var teachers = Orm.getAll<Teacher>();
     var teacherForId = Orm.get<Teacher>(teachers[0].id);
+  }
+
+  showWithForeignKey() {
+    Teacher t = Orm.get<Teacher>("t.0");
+
+    Class c = Class();
+    c.id = "c.0";
+    c.name = "SWE3";
+    c.teacher = t;
+
+    Orm.save(c);
+
+    Class c2 = Orm.get<Class>("c.0");
   }
 }

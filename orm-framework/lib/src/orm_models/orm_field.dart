@@ -141,7 +141,7 @@ class OrmField {
     ResultSet resultSet = Orm.database.select(commandText, parameters);
 
     for (var result in resultSet) {
-      (list as List).add(Orm.createObjectFromRow(type, result, localCache));
+      (list as List).add(Orm.createObjectFromRow(reflectType(type).typeArguments.first.reflectedType, result, localCache));
     }
 
     return list;

@@ -127,6 +127,9 @@ class Orm {
       }
     }
 
+    localCache ??= <Object>[];
+    localCache.add(instance.reflectee);
+
     for (var element in entity.internals) {
       instance.setField(element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()], localCache));
     }
@@ -141,9 +144,6 @@ class Orm {
       }
       instance.setField(element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
     }
-
-    localCache ??= <Object>[];
-    localCache.add(instance.reflectee);
 
     return instance.reflectee;
   }
