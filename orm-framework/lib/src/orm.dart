@@ -40,25 +40,25 @@ class Orm {
 
     List<String> parameters = <String>[];
     bool firstNonPrimaryKey = true;
-    for (int i = 0; i < entity.fields.length; i++) {
+    for (int i = 0; i < entity.internals.length; i++) {
       if (i > 0) {
         commandText += ", ";
         insert += ", ";
       }
-      commandText += entity.fields[i].columnName;
+      commandText += entity.internals[i].columnName;
       insert += "?";
-      parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object)));
+      parameters.add(entity.internals[i].toColumnType(entity.internals[i].getValue(object)));
     }
 
-    for (int i = 0; i < entity.fields.length; i++) {
-      if (!entity.fields[i].isPrimaryKey) {
+    for (int i = 0; i < entity.internals.length; i++) {
+      if (!entity.internals[i].isPrimaryKey) {
         if (firstNonPrimaryKey) {
           firstNonPrimaryKey = false;
         } else {
           update += ", ";
         }
-        update += "${entity.fields[i].columnName} = ?";
-        parameters.add(entity.fields[i].toColumnType(entity.fields[i].getValue(object)));
+        update += "${entity.internals[i].columnName} = ?";
+        parameters.add(entity.internals[i].toColumnType(entity.internals[i].getValue(object)));
       }
     }
     commandText += ") VALUES ( $insert ) $update";
@@ -67,11 +67,11 @@ class Orm {
   }
 
   static T get<T>(Object primaryKey) {
-    return _createObject(T, primaryKey) as T;
+    return createObject(T, primaryKey, null) as T;
   }
 
   static List<T> getAll<T>() {
-    var list = _createAllObjects(T);
+    var list = createAllObjects(T);
     List<T> typedList = <T>[];
     for (var object in list) {
       typedList.add(object as T);
@@ -80,7 +80,7 @@ class Orm {
     return typedList;
   }
 
-  static List<Object> _createAllObjects(Type t) {
+  static List<Object> createAllObjects(Type t) {
     String commandText = Orm.getEntity(t).getSql();
     ResultSet resultSet = database.select(commandText);
 
@@ -89,12 +89,18 @@ class Orm {
     }
     List<Object> objects = <Object>[];
     for (var element in resultSet) {
-      objects.add(_createObjectFromRow(t, element));
+      objects.add(createObjectFromRow(t, element, null));
     }
     return objects;
   }
 
-  static Object _createObject(Type t, Object primaryKey) {
+  static Object createObject(Type t, Object primaryKey, List<Object>? localCache) {
+    Object? cacheObject = searchCache(t, primaryKey, localCache);
+
+    if (cacheObject != null) {
+      return cacheObject;
+    }
+
     String commandText = Orm.getEntity(t).getSql() + " WHERE " + Orm.getEntity(t).primaryKey.columnName + " = ? ";
     ResultSet resultSet = database.select(commandText, [primaryKey]);
 
@@ -102,24 +108,57 @@ class Orm {
       throw Exception("The query did not return 1 row. It returned " + resultSet.length.toString());
     }
 
-    return _createObjectFromRow(t, resultSet.first);
+    return createObjectFromRow(t, resultSet.first, localCache);
   }
 
-  static Object _createObjectFromRow(Type type, Row row) {
+  static Object createObjectFromRow(Type type, Row row, List<Object>? localCache) {
+    var entity = Orm.getEntity(type);
+    Object? cacheObject = searchCache(type, entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache), localCache);
+
     late InstanceMirror instance;
-    var typeMirror = reflectType(type);
-    if (typeMirror is ClassMirror) {
-      instance = typeMirror.newInstance(Symbol(""), const []);
+    if (cacheObject != null) {
+      instance = reflect(cacheObject);
     } else {
-      throw ArgumentError("Cannot create the instance of the type '$type'.");
+      var typeMirror = reflectType(type);
+      if (typeMirror is ClassMirror) {
+        instance = typeMirror.newInstance(Symbol(""), const []);
+      } else {
+        throw ArgumentError("Cannot create the instance of the type '$type'.");
+      }
     }
 
-    var entityFields = Orm.getEntity(type).fields;
-
-    for (var element in entityFields) {
-      instance.setField(element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()]));
+    for (var element in entity.internals) {
+      instance.setField(element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()], localCache));
     }
+
+    for (var element in entity.externals) {
+      InstanceMirror externalInstance;
+      var typeMirror = reflectType(element.type);
+      if (typeMirror is ClassMirror) {
+        externalInstance = typeMirror.newInstance(Symbol(""), const []);
+      } else {
+        throw ArgumentError("Cannot create the instance of the type '$type'.");
+      }
+      instance.setField(element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
+    }
+
+    localCache ??= <Object>[];
+    localCache.add(instance.reflectee);
 
     return instance.reflectee;
+  }
+
+  static Object? searchCache(Type type, Object primaryKey, List<Object>? localCache) {
+    if (localCache != null) {
+      for (Object object in localCache) {
+        if (object.runtimeType != type) {
+          continue;
+        }
+
+        if (Orm.getEntity(type).primaryKey.getValue(object) == primaryKey) {
+          return object;
+        }
+      }
+    }
   }
 }

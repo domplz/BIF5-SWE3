@@ -18,11 +18,10 @@ class OrmEntity {
     ClassMirror classMirror = member;
     var declarations = Map<Symbol, DeclarationMirror>.from(classMirror.declarations);
 
-    while(classMirror.superclass != null){
+    while (classMirror.superclass != null) {
       declarations.addAll(classMirror.superclass!.declarations);
       classMirror = classMirror.superclass!;
     }
-
 
     declarations.forEach((key, value) {
       IgnoreAnnotation? ignoreAnnotation = _getAnnotationOrNull<IgnoreAnnotation>(value);
@@ -36,10 +35,7 @@ class OrmEntity {
         OrmField field = OrmField(
           this,
           value as VariableMirror,
-          fieldAnnotation?.columnType ??
-              foreignKeyAnnotation?.columnType ??
-              primaryKeyAnnotation?.columnType ??
-              value.type.reflectedType,
+          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.type.reflectedType,
           fieldAnnotation?.columnName ?? foreignKeyAnnotation?.columnName ?? primaryKeyAnnotation?.columnName ?? MirrorSystem.getName(key),
           fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.type.reflectedType,
           primaryKeyAnnotation != null,
@@ -51,29 +47,53 @@ class OrmEntity {
           primaryKey = field;
         }
 
+        if (foreignKeyAnnotation != null) {
+          field.isExternal = MirrorSystem.getName(reflectType(value.type.reflectedType).simpleName) == "List";
+          field.assignmentTable = foreignKeyAnnotation.assignmentTable;
+          field.remoteColumnName = foreignKeyAnnotation.remoteColumnName;
+          field.isManyToMany = !(field.assignmentTable?.trim().isEmpty ?? true);
+        }
+
         fields.add(field);
       }
     });
+
+    _internals = fields.where((element) => !element.isExternal).toList();
+    _externals = fields.where((element) => element.isExternal).toList();
   }
 
   late ClassMirror member;
   late String tableName;
   late List<OrmField> fields;
   late OrmField primaryKey;
+  late List<OrmField> _internals;
+  late List<OrmField> _externals;
 
-  String getSql({String prefix = ""}){
+  List<OrmField> get internals => _internals;
+  List<OrmField> get externals => _externals;
+
+  String getSql({String prefix = ""}) {
     String selectStatement = "Select ";
-    for(int i = 0; i < fields.length; i++){
+    for (int i = 0; i < internals.length; i++) {
       // add ", " in front of the value after the first
-      if(i>0){
+      if (i > 0) {
         selectStatement += ", ";
       }
-      selectStatement += prefix.trim() + fields[i].columnName;
+      selectStatement += prefix.trim() + internals[i].columnName;
     }
 
     selectStatement += " FROM " + tableName;
 
     return selectStatement;
+  }
+
+  OrmField getFieldForColumn(String columnName) {
+    for (OrmField internalField in internals) {
+      if (columnName.toUpperCase() == internalField.columnName.toUpperCase()) {
+        return internalField;
+      }
+    }
+    throw Exception(columnName + "-field not found!");
   }
 
   T? _getAnnotationOrNull<T>(DeclarationMirror mirror) {

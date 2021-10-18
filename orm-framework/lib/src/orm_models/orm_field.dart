@@ -1,6 +1,7 @@
 import 'dart:mirrors';
 
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
+import 'package:sqlite3/sqlite3.dart';
 
 import '../../orm_framework.dart';
 
@@ -15,6 +16,10 @@ class OrmField {
   bool isPrimaryKey;
   bool isForeignKey;
   bool isNullable;
+  String? assignmentTable;
+  String? remoteColumnName;
+  bool isManyToMany = false;
+  bool isExternal = false;
 
   // is needed as string for parameter bindings
   String toColumnType(Object value) {
@@ -42,7 +47,13 @@ class OrmField {
     return value.toString();
   }
 
-  toFieldType(Object? value) {
+  toFieldType(Object? value, List<Object>? localCache) {
+    if (isForeignKey) {
+      if (value != null) {
+        return Orm.createObject(type, value, localCache);
+      }
+    }
+
     if (type == bool) {
       if (value == null && !isNullable) {
         return false;
@@ -107,5 +118,32 @@ class OrmField {
       instanceMirror.setField(member.simpleName, value);
     }
     throw Exception("Other types than VariableMirrors are not supportet for setValue!");
+  }
+
+  Object fill(Object list, Object obj, List<Object>? localCache) {
+    String commandText = "";
+    if (isManyToMany) {
+      commandText = Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql() +
+          "WHERE ID IN (SELECT " +
+          (remoteColumnName ?? "MISSING REMOTE COLUMN NAME") +
+          " FROM " +
+          (assignmentTable ?? "MISSING ASSIGNMENT TABLE") +
+          " WHERE " +
+          columnName +
+          " = ? )";
+    } else {
+      commandText = Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql() + " WHERE " + columnName + " = ?";
+    }
+
+    List<String> parameters = <String>[];
+    parameters.add(entity.primaryKey.getValue(obj).toString());
+
+    ResultSet resultSet = Orm.database.select(commandText, parameters);
+
+    for (var result in resultSet) {
+      (list as List).add(Orm.createObjectFromRow(type, result, localCache));
+    }
+
+    return list;
   }
 }
