@@ -17,6 +17,7 @@ void main() {
   demo.showInsert();
   demo.showSelect();
   demo.showWithForeignKey();
+  demo.showWithForeignKeyList();
 
   Orm.database.dispose();
 }
@@ -57,5 +58,24 @@ class OrmDemo {
     Orm.save(c);
 
     Class c2 = Orm.get<Class>("c.0");
+  }
+
+  showWithForeignKeyList() {
+    Teacher t = Orm.get<Teacher>("t.0");
+
+    // add another class
+    Class c = Class();
+    c.id = "c.1";
+    c.name = "INN3";
+    c.teacher = t;
+
+    Orm.save(c);
+
+    t = Orm.get<Teacher>("t.0");
+
+    String teachesClasses = "";
+    for (var teachesClass in t.classes) {
+      teachesClasses += teachesClass.name + "; ";
+    }
   }
 }
