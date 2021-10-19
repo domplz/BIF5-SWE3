@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:orm_framework/orm_framework.dart';
 import 'package:orm_framework/src/annotations/foreignkey_annotation.dart';
 import 'package:test/test.dart';
@@ -14,6 +16,8 @@ void main() {
       expect(entity.fields.first.isNullable, equals(true));
       expect(entity.fields.first.isForeignKey, equals(true));
       expect(entity.fields.first.isPrimaryKey, equals(false));
+      expect(entity.fields.first.assignmentTable, equals("AssignmentTable"));
+      expect(entity.fields.first.remoteColumnName, equals("RemoteColumnName"));
     });
 
     test('Expect to work when no parameters are set', () {
@@ -24,12 +28,14 @@ void main() {
       expect(entity.fields.first.isNullable, equals(false));
       expect(entity.fields.first.isForeignKey, equals(true));
       expect(entity.fields.first.isPrimaryKey, equals(false));
+      expect(entity.fields.first.assignmentTable, equals(null));
+      expect(entity.fields.first.remoteColumnName, equals(null));
     });
   });
 }
 
 class TestClass {
-  @ForeignKeyAnnotation("TestField", String, true)
+  @ForeignKeyAnnotation("TestField", String, true, "AssignmentTable", "RemoteColumnName")
   String test;
   TestClass(this.test);
 }
