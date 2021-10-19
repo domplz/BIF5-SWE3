@@ -147,13 +147,9 @@ class Orm {
   }
 
   static Object? searchCache(Type type, Object primaryKey, List<Object>? localCache) {
-    if (localCache != null) {
+    if (localCache != null && localCache.isNotEmpty) {
       for (Object object in localCache) {
-        if (object.runtimeType != type) {
-          continue;
-        }
-
-        if (Orm.getEntity(type).primaryKey.getValue(object) == primaryKey) {
+        if (object.runtimeType == type && Orm.getEntity(type).primaryKey.getValue(object) == primaryKey) {
           return object;
         }
       }
