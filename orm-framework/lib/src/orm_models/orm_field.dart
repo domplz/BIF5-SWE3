@@ -86,10 +86,10 @@ class OrmField {
         List<String> enumValues = <String>[];
         for (var element in typeMirror.declarations.values) {
           // todo: find a better way to extract enum names
-          if (MirrorSystem.getName(element.simpleName) != "index" &&
-              MirrorSystem.getName(element.simpleName) != "_name" &&
+          if (!element.isPrivate &&
+              element is VariableMirror &&
+              element.isConst &&
               MirrorSystem.getName(element.simpleName) != "values" &&
-              MirrorSystem.getName(element.simpleName) != "toString" &&
               MirrorSystem.getName(element.simpleName) != MirrorSystem.getName(typeMirror.simpleName)) {
             enumValues.add(MirrorSystem.getName(element.simpleName));
           }
