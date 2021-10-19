@@ -27,14 +27,14 @@ class OrmEntity {
       IgnoreAnnotation? ignoreAnnotation = _getAnnotationOrNull<IgnoreAnnotation>(value);
 
       // for some reasone runTimeType == VariableMirror is not working
-      if (!value.isPrivate && value.runtimeType.toString() == "_VariableMirror" && ignoreAnnotation == null) {
+      if (!value.isPrivate && value is VariableMirror && ignoreAnnotation == null) {
         FieldAnnotation? fieldAnnotation = _getAnnotationOrNull(value);
         ForeignKeyAnnotation? foreignKeyAnnotation = _getAnnotationOrNull(value);
         PrimaryKeyAnnotation? primaryKeyAnnotation = _getAnnotationOrNull<PrimaryKeyAnnotation>(value);
 
         OrmField field = OrmField(
           this,
-          value as VariableMirror,
+          value,
           fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.type.reflectedType,
           fieldAnnotation?.columnName ?? foreignKeyAnnotation?.columnName ?? primaryKeyAnnotation?.columnName ?? MirrorSystem.getName(key),
           fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.type.reflectedType,
@@ -48,7 +48,7 @@ class OrmEntity {
         }
 
         if (foreignKeyAnnotation != null) {
-          field.isExternal = MirrorSystem.getName(reflectType(value.type.reflectedType).simpleName) == "List";
+          field.isExternal = reflectType(value.type.reflectedType).isAssignableTo(reflectType(Iterable));
           field.assignmentTable = foreignKeyAnnotation.assignmentTable;
           field.remoteColumnName = foreignKeyAnnotation.remoteColumnName;
           field.isManyToMany = !(field.assignmentTable?.trim().isEmpty ?? true);

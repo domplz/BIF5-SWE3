@@ -105,7 +105,7 @@ class OrmField {
   }
 
   Object getValue(Object object) {
-    if (member.runtimeType.toString() == "_VariableMirror") {
+    if (member is VariableMirror) {
       InstanceMirror instanceMirror = reflect(object);
       return instanceMirror.getField(member.simpleName).reflectee;
     }
@@ -113,7 +113,7 @@ class OrmField {
   }
 
   void setValue(Object object, Object value) {
-    if (member.runtimeType.toString() == "_VariableMirror") {
+    if (member is VariableMirror) {
       InstanceMirror instanceMirror = reflect(object);
       instanceMirror.setField(member.simpleName, value);
     }
