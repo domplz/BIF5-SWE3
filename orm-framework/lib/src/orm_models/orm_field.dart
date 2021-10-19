@@ -22,6 +22,7 @@ class OrmField {
   bool isExternal = false;
 
   // is needed as string for parameter bindings
+  // parameters in sqlite3 library can only be strings for some Reason
   String toColumnType(Object value) {
     if (isForeignKey) {
       return Orm.getEntity(type).primaryKey.toColumnType(Orm.getEntity(type).primaryKey.getValue(value));
@@ -78,13 +79,13 @@ class OrmField {
       return DateTime.parse(value.toString());
     }
 
-    // todo, cannot find a way to set an enum via reflection
     if (reflectClass(type).isEnum) {
       late InstanceMirror instance;
       var typeMirror = reflectType(type);
       if (typeMirror is ClassMirror) {
         List<String> enumValues = <String>[];
         for (var element in typeMirror.declarations.values) {
+          // todo: find a better way to extract enum names
           if (MirrorSystem.getName(element.simpleName) != "index" &&
               MirrorSystem.getName(element.simpleName) != "_name" &&
               MirrorSystem.getName(element.simpleName) != "values" &&
@@ -136,7 +137,7 @@ class OrmField {
     }
 
     List<String> parameters = <String>[];
-    parameters.add(entity.primaryKey.getValue(obj).toString());
+    parameters.add(entity.primaryKey.toColumnType(entity.primaryKey.getValue(obj)));
 
     ResultSet resultSet = Orm.database.select(commandText, parameters);
 

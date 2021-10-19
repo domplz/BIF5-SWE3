@@ -22,12 +22,8 @@ class Orm {
       _entities[type] = OrmEntity(type);
     }
 
-    var entity = _entities[type];
-    if (entity != null) {
-      return entity;
-    }
-
-    throw Exception("Entity in dictionary is null! (Should not happen, as it was just added)");
+    // ! is used, bc it was just added above
+    return _entities[type]!;
   }
 
   static save(Object object) async {
@@ -46,7 +42,7 @@ class Orm {
         insert += ", ";
       }
       commandText += entity.internals[i].columnName;
-      insert += "?";
+      insert += " ? ";
       parameters.add(entity.internals[i].toColumnType(entity.internals[i].getValue(object)));
     }
 
@@ -80,17 +76,19 @@ class Orm {
     return typedList;
   }
 
-  static List<Object> createAllObjects(Type t) {
-    String commandText = Orm.getEntity(t).getSql();
+  static List<Object> createAllObjects(Type type) {
+    String commandText = Orm.getEntity(type).getSql();
     ResultSet resultSet = database.select(commandText);
 
     if (resultSet.isEmpty) {
-      throw Exception("The query did not return any rows. It returned " + resultSet.length.toString());
+      throw Exception("The query did not return any rows. It returned an empty resultSet!");
     }
+
     List<Object> objects = <Object>[];
     for (var element in resultSet) {
-      objects.add(createObjectFromRow(t, element, null));
+      objects.add(createObjectFromRow(type, element, null));
     }
+
     return objects;
   }
 
@@ -127,7 +125,7 @@ class Orm {
       }
     }
 
-    localCache ??= <Object>[];
+    localCache ??= [];
     localCache.add(instance.reflectee);
 
     for (var element in entity.internals) {

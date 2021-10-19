@@ -10,7 +10,6 @@ import 'package:collection/collection.dart';
 class OrmEntity {
   OrmEntity(Type type) {
     member = reflectClass(type);
-    fields = [];
 
     EntityAnnotation? entityAnnotation = _getAnnotationOrNull<EntityAnnotation>(member);
     tableName = entityAnnotation?.tableName ?? MirrorSystem.getName(member.simpleName).toUpperCase();
@@ -23,11 +22,11 @@ class OrmEntity {
       classMirror = classMirror.superclass!;
     }
 
-    declarations.forEach((key, value) {
+    List<OrmField> entityFields = [];
+    declarations.forEach((Symbol key, DeclarationMirror value) {
       IgnoreAnnotation? ignoreAnnotation = _getAnnotationOrNull<IgnoreAnnotation>(value);
 
-      // for some reasone runTimeType == VariableMirror is not working
-      if (!value.isPrivate && value is VariableMirror && ignoreAnnotation == null) {
+      if (ignoreAnnotation == null && value is VariableMirror && !value.isPrivate) {
         FieldAnnotation? fieldAnnotation = _getAnnotationOrNull(value);
         ForeignKeyAnnotation? foreignKeyAnnotation = _getAnnotationOrNull(value);
         PrimaryKeyAnnotation? primaryKeyAnnotation = _getAnnotationOrNull<PrimaryKeyAnnotation>(value);
@@ -43,10 +42,6 @@ class OrmEntity {
           fieldAnnotation?.nullable ?? foreignKeyAnnotation?.nullable ?? primaryKeyAnnotation?.nullable ?? false,
         );
 
-        if (primaryKeyAnnotation != null) {
-          primaryKey = field;
-        }
-
         if (foreignKeyAnnotation != null) {
           field.isExternal = reflectType(value.type.reflectedType).isAssignableTo(reflectType(Iterable));
           field.assignmentTable = foreignKeyAnnotation.assignmentTable;
@@ -54,10 +49,15 @@ class OrmEntity {
           field.isManyToMany = !(field.assignmentTable?.trim().isEmpty ?? true);
         }
 
-        fields.add(field);
+        if (primaryKeyAnnotation != null) {
+          primaryKey = field;
+        }
+
+        entityFields.add(field);
       }
     });
 
+    fields = entityFields;
     _internals = fields.where((element) => !element.isExternal).toList();
     _externals = fields.where((element) => element.isExternal).toList();
   }
@@ -73,7 +73,7 @@ class OrmEntity {
   List<OrmField> get externals => _externals;
 
   String getSql({String prefix = ""}) {
-    String selectStatement = "Select ";
+    String selectStatement = "SELECT ";
     for (int i = 0; i < internals.length; i++) {
       // add ", " in front of the value after the first
       if (i > 0) {
