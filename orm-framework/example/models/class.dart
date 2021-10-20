@@ -9,6 +9,6 @@ class Class {
   @PrimaryKeyAnnotation()
   late String id;
   late String name;
-  @ForeignKeyAnnotation(remoteColumnName: "KTEACHER")
+  @ForeignKeyAnnotation(columnName: "KTEACHER")
   late Teacher teacher;
 }

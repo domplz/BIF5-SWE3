@@ -77,35 +77,37 @@ class OrmDemo {
     t = Orm.get<Teacher>("t.0");
   }
 
-  showWithMToN(){
-    Course c = Course();
-    c.id = "x.0";
-    c.name = "Demons 1";
-    c.teacher = Orm.get<Teacher>("t.0");
+  showWithMToN() {
+    Course course = Course();
+    course.id = "x.0";
+    course.name = "Demons 1";
+    course.teacher = Orm.get<Teacher>("t.0");
 
-    Student s1 = Student();
-    s1.id = "s.0";
-    s1.name = "Aalo";
-    s1.firstName = "Alice";
-    s1.gender = Gender.female;
-    s1.birthDate = DateTime(1990, 1 , 12);
-    s1.grade = 1;
-    
-    Orm.save(s1);
+    Student student1 = Student();
+    student1.id = "s.0";
+    student1.name = "Aalo";
+    student1.firstName = "Alice";
+    student1.gender = Gender.female;
+    student1.birthDate = DateTime(1990, 1, 12);
+    student1.grade = 1;
 
-    c.students.add(s1);
-    
-    Student s2 = Student();
-    s2.id = "s.1";
-    s2.name = "Bumblebee";
-    s2.firstName = "Bernard";
-    s2.gender = Gender.male;
-    s2.birthDate = DateTime(1991, 9 , 23);
-    s2.grade = 2;
-    
-    Orm.save(s2);
+    Orm.save(student1);
 
-    c.students.add(s2);
+    course.students.add(student1);
+
+    Student student2 = Student();
+    student2.id = "s.1";
+    student2.name = "Bumblebee";
+    student2.firstName = "Bernard";
+    student2.gender = Gender.male;
+    student2.birthDate = DateTime(1991, 9, 23);
+    student2.grade = 2;
+
+    Orm.save(student2);
+
+    course.students.add(student2);
+
+    Orm.save(course);
 
     Course courseWithStudents = Orm.get<Course>("x.0");
   }

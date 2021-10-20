@@ -13,5 +13,5 @@ class Course {
   @ForeignKeyAnnotation(columnName: "KTEACHER")
   late Teacher teacher;
   @ForeignKeyAnnotation(columnName: "KCOURSE", assignmentTable: "STUDENT_COURSES", remoteColumnName: "KSTUDENT")
-  late List<Student> students;
+  List<Student> students = <Student>[];
 }
