@@ -83,6 +83,16 @@ class OrmField {
     }
 
     if (reflectClass(type).isEnum) {
+      // if not nullable, but value is null, use first value as default
+      if(value == null && !isNullable){
+        value = 0;
+      }
+
+      // if nullable, return null.
+      if(value == null && isNullable){
+        return null;
+      }
+
       late InstanceMirror instance;
       var typeMirror = reflectType(type);
       if (typeMirror is ClassMirror) {

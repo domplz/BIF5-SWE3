@@ -25,10 +25,10 @@ void main() {
         "ALSOTEST": 321,
       };
       
-      var object = Orm.createObjectFromRow(TestClass, resultMap, null);
+      var object = Orm.createObjectFromRow(TestClass, resultMap, null) as TestClass;
       expect(object.runtimeType, equals(TestClass));
-      expect((object as TestClass).test, equals("TestProperty"));
-      expect((object as TestClass).alsoTest, equals(321));
+      expect(object.test, equals("TestProperty"));
+      expect(object.alsoTest, equals(321));
     });
 
     test('With null values result map', () {
@@ -37,10 +37,10 @@ void main() {
         "ALSOTEST": null,
       };
       
-      var object = Orm.createObjectFromRow(TestClass, resultMap, null);
+      var object = Orm.createObjectFromRow(TestClass, resultMap, null) as TestClass;
       expect(object.runtimeType, equals(TestClass));
-      expect((object as TestClass).test, isEmpty);
-      expect((object as TestClass).alsoTest, equals(0));
+      expect(object.test, isEmpty);
+      expect(object.alsoTest, equals(0));
     });
 
     
@@ -50,14 +50,30 @@ void main() {
         "ENUMVALUE": 1,
       };
       
-      var object = Orm.createObjectFromRow(TestClassWithEnum, resultMap, null);
+      var object = Orm.createObjectFromRow(TestClassWithEnum, resultMap, null) as TestClassWithEnum;
       expect(object.runtimeType, equals(TestClassWithEnum));
       
       // cannot do the following, as creation with reflection does something weired with it
       // expect((object as TestClassWithEnum).enumValue, equals(TestEnum.valueTwo));
-      expect((object as TestClassWithEnum).enumValue?.index, equals(TestEnum.valueTwo.index));
-      expect((object as TestClassWithEnum).enumValue?.runtimeType, equals(TestEnum.valueTwo.runtimeType));
-      expect((object as TestClassWithEnum).enumValue?.toString(), equals(TestEnum.valueTwo.toString()));
+      expect(object.enumValue?.index, equals(TestEnum.valueTwo.index));
+      expect(object.enumValue?.runtimeType, equals(TestEnum.valueTwo.runtimeType));
+      expect(object.enumValue?.toString(), equals(TestEnum.valueTwo.toString()));
+    });
+
+    test('With enums as NULL', () {
+      var resultMap = <String, dynamic>{
+        "ID": "NiceIdMan",
+        "ENUMVALUE": null,
+      };
+      
+      var object = Orm.createObjectFromRow(TestClassWithEnum, resultMap, null) as TestClassWithEnum;
+      expect(object.runtimeType, equals(TestClassWithEnum));
+      
+      // cannot do the following, as creation with reflection does something weired with it
+      expect(object.enumValue, equals(null));
+      expect(object.enumValue?.index, equals(null));
+      expect(object.enumValue?.runtimeType, equals(null));
+      expect(object.enumValue?.toString(), equals(null));
     });
   });
 
