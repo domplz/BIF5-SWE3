@@ -32,7 +32,7 @@ class OrmField {
     }
 
     // handle enums
-    if (reflectClass(columnType).isEnum) {
+    if (reflectClass(type).isEnum) {
       // returns integer
       return (value as Enum).index.toString();
     }
@@ -42,7 +42,7 @@ class OrmField {
     }
 
     // handle different field types
-    if (value == bool) {
+    if (value is bool) {
       if (columnType == int) {
         return ((value as bool) ? 1 : 0).toString();
       }
