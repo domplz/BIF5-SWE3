@@ -6,7 +6,8 @@ import 'package:sqlite3/sqlite3.dart';
 import '../../orm_framework.dart';
 
 class OrmField {
-  OrmField(this.entity, this.member, this.type, this.columnName, this.columnType, this.isPrimaryKey, this.isForeignKey, this.isNullable);
+  OrmField(this.entity, this.member, this.type, this.columnName,
+      this.columnType, this.isPrimaryKey, this.isForeignKey, this.isNullable);
 
   OrmEntity entity;
   VariableMirror member;
@@ -25,7 +26,9 @@ class OrmField {
   // parameters in sqlite3 library can only be strings for some Reason
   String toColumnType(Object value) {
     if (isForeignKey) {
-      return Orm.getEntity(type).primaryKey.toColumnType(Orm.getEntity(type).primaryKey.getValue(value));
+      return Orm.getEntity(type)
+          .primaryKey
+          .toColumnType(Orm.getEntity(type).primaryKey.getValue(value));
     }
 
     // handle enums
@@ -75,7 +78,7 @@ class OrmField {
       if (value == null && !isNullable) {
         return DateTime(0);
       }
-
+    
       return DateTime.parse(value.toString());
     }
 
@@ -90,16 +93,22 @@ class OrmField {
               element is VariableMirror &&
               element.isConst &&
               MirrorSystem.getName(element.simpleName) != "values" &&
-              MirrorSystem.getName(element.simpleName) != MirrorSystem.getName(typeMirror.simpleName)) {
-            enumValues.add(MirrorSystem.getName(element.simpleName));
+              MirrorSystem.getName(element.simpleName) !=
+                  MirrorSystem.getName(typeMirror.simpleName)) {
+            enumValues.add(MirrorSystem.getName(typeMirror.simpleName) + "." + MirrorSystem.getName(element.simpleName));
           }
         }
 
-        instance = typeMirror.newInstance(Symbol(""), [value, enumValues[value as int]]);
+        instance = typeMirror
+            .newInstance(Symbol(""), [value, enumValues[value as int]]);
         return instance.reflectee;
       } else {
         throw ArgumentError("Cannot create the instance of the type '$type'.");
       }
+    }
+
+    if(type == String && !isNullable && value == null){
+      return "";
     }
 
     return value;
@@ -110,7 +119,8 @@ class OrmField {
       InstanceMirror instanceMirror = reflect(object);
       return instanceMirror.getField(member.simpleName).reflectee;
     }
-    throw Exception("Other types than VariableMirrors are not supportet for getValue!");
+    throw Exception(
+        "Other types than VariableMirrors are not supportet for getValue!");
   }
 
   void setValue(Object object, Object value) {
@@ -118,31 +128,43 @@ class OrmField {
       InstanceMirror instanceMirror = reflect(object);
       instanceMirror.setField(member.simpleName, value);
     }
-    throw Exception("Other types than VariableMirrors are not supportet for setValue!");
+    throw Exception(
+        "Other types than VariableMirrors are not supportet for setValue!");
   }
 
   Object fill(Object list, Object obj, List<Object>? localCache) {
     String commandText = "";
     if (isManyToMany) {
-      commandText = Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql() +
-          "WHERE ID IN (SELECT " +
-          (remoteColumnName ?? "MISSING REMOTE COLUMN NAME") +
-          " FROM " +
-          (assignmentTable ?? "MISSING ASSIGNMENT TABLE") +
-          " WHERE " +
-          columnName +
-          " = ? )";
+      commandText =
+          Orm.getEntity(reflectType(type).typeArguments.first.reflectedType)
+                  .getSql() +
+              "WHERE ID IN (SELECT " +
+              (remoteColumnName ?? "MISSING REMOTE COLUMN NAME") +
+              " FROM " +
+              (assignmentTable ?? "MISSING ASSIGNMENT TABLE") +
+              " WHERE " +
+              columnName +
+              " = ? )";
     } else {
-      commandText = Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql() + " WHERE " + columnName + " = ?";
+      commandText =
+          Orm.getEntity(reflectType(type).typeArguments.first.reflectedType)
+                  .getSql() +
+              " WHERE " +
+              columnName +
+              " = ?";
     }
 
     List<String> parameters = <String>[];
-    parameters.add(entity.primaryKey.toColumnType(entity.primaryKey.getValue(obj)));
+    parameters
+        .add(entity.primaryKey.toColumnType(entity.primaryKey.getValue(obj)));
 
     ResultSet resultSet = Orm.database.select(commandText, parameters);
 
     for (var result in resultSet) {
-      (list as List).add(Orm.createObjectFromRow(reflectType(type).typeArguments.first.reflectedType, result, localCache));
+      (list as List).add(Orm.createObjectFromRow(
+          reflectType(type).typeArguments.first.reflectedType,
+          result,
+          localCache));
     }
 
     return list;

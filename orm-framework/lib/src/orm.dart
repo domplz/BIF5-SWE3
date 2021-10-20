@@ -109,7 +109,7 @@ class Orm {
     return createObjectFromRow(t, resultSet.first, localCache);
   }
 
-  static Object createObjectFromRow(Type type, Row row, List<Object>? localCache) {
+  static Object createObjectFromRow(Type type, Map<String, dynamic> row, List<Object>? localCache) {
     var entity = Orm.getEntity(type);
     Object? cacheObject = searchCache(type, entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache), localCache);
 
