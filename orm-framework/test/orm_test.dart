@@ -69,11 +69,26 @@ void main() {
       var object = Orm.createObjectFromRow(TestClassWithEnum, resultMap, null) as TestClassWithEnum;
       expect(object.runtimeType, equals(TestClassWithEnum));
       
-      // cannot do the following, as creation with reflection does something weired with it
       expect(object.enumValue, equals(null));
       expect(object.enumValue?.index, equals(null));
       expect(object.enumValue?.runtimeType, equals(null));
       expect(object.enumValue?.toString(), equals(null));
+    });
+
+    test('With enums as STRING', () {
+      var resultMap = <String, dynamic>{
+        "ID": "NiceIdMan",
+        "ENUMVALUE": TestEnum.valueTwo.toString(),
+      };
+      
+      var object = Orm.createObjectFromRow(TestClassWithEnumAsString, resultMap, null) as TestClassWithEnumAsString;
+      expect(object.runtimeType, equals(TestClassWithEnumAsString));
+      
+      // cannot do the following, as creation with reflection does something weired with it
+      // expect(object.enumValue, equals(TestEnum.valueTwo));
+      expect(object.enumValue?.index, equals(TestEnum.valueTwo.index));
+      expect(object.enumValue?.runtimeType, equals(TestEnum.valueTwo.runtimeType));
+      expect(object.enumValue?.toString(), equals(TestEnum.valueTwo.toString()));
     });
   });
 
@@ -93,6 +108,13 @@ class TestClassWithEnum {
   @PrimaryKeyAnnotation()
   late String id;
   @FieldAnnotation("enumValue", int, true)
+  TestEnum? enumValue;
+}
+
+class TestClassWithEnumAsString {
+  @PrimaryKeyAnnotation()
+  late String id;
+  @FieldAnnotation("enumValue", String, true)
   TestEnum? enumValue;
 }
 

@@ -78,18 +78,18 @@ class OrmField {
       if (value == null && !isNullable) {
         return DateTime(0);
       }
-    
+
       return DateTime.parse(value.toString());
     }
 
     if (reflectClass(type).isEnum) {
       // if not nullable, but value is null, use first value as default
-      if(value == null && !isNullable){
+      if (value == null && !isNullable) {
         value = 0;
       }
 
       // if nullable, return null.
-      if(value == null && isNullable){
+      if (value == null && isNullable) {
         return null;
       }
 
@@ -105,19 +105,30 @@ class OrmField {
               MirrorSystem.getName(element.simpleName) != "values" &&
               MirrorSystem.getName(element.simpleName) !=
                   MirrorSystem.getName(typeMirror.simpleName)) {
-            enumValues.add(MirrorSystem.getName(typeMirror.simpleName) + "." + MirrorSystem.getName(element.simpleName));
+            enumValues.add("${MirrorSystem.getName(typeMirror.simpleName)}.${MirrorSystem.getName(element.simpleName)}");
           }
         }
 
-        instance = typeMirror
-            .newInstance(Symbol(""), [value, enumValues[value as int]]);
+        if (columnType == int) {
+          instance = typeMirror
+              .newInstance(Symbol(""), [value, enumValues[value as int]]);
+        }
+
+        else if (columnType == String) {
+          instance = typeMirror.newInstance(
+              Symbol(""), [enumValues.indexOf(value as String), value]);
+        }
+        else {
+          throw Exception("ColumnType '$columnType' is not Suported!");
+        }
+
         return instance.reflectee;
       } else {
         throw ArgumentError("Cannot create the instance of the type '$type'.");
       }
     }
 
-    if(type == String && !isNullable && value == null){
+    if (type == String && !isNullable && value == null) {
       return "";
     }
 
