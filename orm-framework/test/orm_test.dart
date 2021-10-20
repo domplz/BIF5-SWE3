@@ -44,7 +44,7 @@ void main() {
     });
 
     
-    test('With enums', () {
+    test('With enums as INT', () {
       var resultMap = <String, dynamic>{
         "ID": "NiceIdMan",
         "ENUMVALUE": 1,
@@ -76,7 +76,7 @@ class TestClass {
 class TestClassWithEnum {
   @PrimaryKeyAnnotation()
   late String id;
-  @FieldAnnotation("enumValue")
+  @FieldAnnotation("enumValue", int, true)
   TestEnum? enumValue;
 }
 
