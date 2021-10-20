@@ -1,5 +1,6 @@
 import 'dart:mirrors';
 
+import 'package:orm_framework/src/lazy.dart';
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -22,11 +23,24 @@ class OrmField {
   bool isManyToMany = false;
   bool isExternal = false;
 
+  String get fkSql {
+    if(isManyToMany){
+      return Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql() +
+      " WHERE ID IN (SELECT $remoteColumnName FROM $assignmentTable WHERE $columnName = ?";
+    }
+
+    return "${Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql()} WHERE $columnName = ?";
+  } 
+
   // is needed as string for parameter bindings
   // parameters in sqlite3 library can only be strings for some Reason
   String toColumnType(Object value) {
     if (isForeignKey) {
-      return Orm.getEntity(type).primaryKey.toColumnType(Orm.getEntity(type).primaryKey.getValue(value));
+      Type t = type;
+      if(reflectType(type).isAssignableTo(reflectType(Lazy))){
+        t = reflectType(type).typeArguments.first.reflectedType;
+      }
+      return Orm.getEntity(t).primaryKey.toColumnType(Orm.getEntity(type).primaryKey.getValue(value));
     }
 
     // handle enums
@@ -52,6 +66,9 @@ class OrmField {
   toFieldType(Object? value, List<Object>? localCache) {
     if (isForeignKey) {
       if (value != null) {
+        if(reflectType(type).isAssignableTo(reflectType(Lazy))){
+          return (reflectType(type) as ClassMirror).newInstance(Symbol(""), [value]).reflectee;
+        }
         return Orm.createObject(type, value, localCache);
       }
     }
@@ -131,6 +148,10 @@ class OrmField {
   Object getValue(Object object) {
     if (member is VariableMirror) {
       InstanceMirror instanceMirror = reflect(object);
+      if(object is Lazy){
+        // no idea man
+        return instanceMirror.getField(member.simpleName).reflectee;
+      }
       return instanceMirror.getField(member.simpleName).reflectee;
     }
     throw Exception("Other types than VariableMirrors are not supportet for getValue!");
