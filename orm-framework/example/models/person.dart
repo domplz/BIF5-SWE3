@@ -5,7 +5,7 @@ import 'package:orm_framework/src/annotations/primarykey_annotation.dart';
 
 import 'gender.dart';
 
-@EntityAnnotation("PERSONS")
+@EntityAnnotation(tableName: "PERSONS")
 class Person {
   int _instanceNumber = 0;
 
@@ -13,8 +13,9 @@ class Person {
   late String id;
   late String name;
   late String firstName;
-  @FieldAnnotation("BDate")
+  @FieldAnnotation(columnName: "BDate")
   late DateTime birthDate;
+  @FieldAnnotation(columnType: int)
   late Gender gender;
 
   @IgnoreAnnotation()

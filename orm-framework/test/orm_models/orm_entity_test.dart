@@ -14,7 +14,7 @@ void main() {
   });
 }
 
-@EntityAnnotation("TestClass")
+@EntityAnnotation(tableName: "TestClass")
 class TestClass {
   String test;
   TestClass(this.test);

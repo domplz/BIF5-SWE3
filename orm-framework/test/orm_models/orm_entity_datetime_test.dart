@@ -16,9 +16,9 @@ void main() {
   });
 }
 
-@EntityAnnotation("TestClass")
+@EntityAnnotation(tableName: "TestClass")
 class TestClass {
-  @FieldAnnotation("TDATE")
+  @FieldAnnotation(columnName: "TDATE")
   DateTime test;
   TestClass(this.test);
 }

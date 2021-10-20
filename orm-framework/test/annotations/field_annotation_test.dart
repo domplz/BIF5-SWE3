@@ -29,7 +29,7 @@ void main() {
 }
 
 class TestClass {
-  @FieldAnnotation("TestField", String, true)
+  @FieldAnnotation(columnName: "TestField", columnType: String, nullable: true)
   String test;
   TestClass(this.test);
 }

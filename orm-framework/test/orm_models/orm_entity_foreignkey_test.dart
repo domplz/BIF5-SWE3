@@ -42,11 +42,11 @@ void main() {
   });
 }
 
-@EntityAnnotation("TestClass")
+@EntityAnnotation(tableName: "TestClass")
 class TestClass {
   @PrimaryKeyAnnotation()
   int id1;
-  @ForeignKeyAnnotation("id2")
+  @ForeignKeyAnnotation(columnName: "id2")
   List<TestClass2> test2s;
 
   TestClass(this.id1, this.test2s);

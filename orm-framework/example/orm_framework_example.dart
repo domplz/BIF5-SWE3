@@ -6,7 +6,9 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'models/class.dart';
+import 'models/course.dart';
 import 'models/gender.dart';
+import 'models/student.dart';
 import 'models/teacher.dart';
 
 void main() {
@@ -18,6 +20,7 @@ void main() {
   demo.showSelect();
   demo.showWithForeignKey();
   demo.showWithForeignKeyList();
+  demo.showWithMToN();
 
   Orm.database.dispose();
 }
@@ -72,10 +75,38 @@ class OrmDemo {
     Orm.save(c);
 
     t = Orm.get<Teacher>("t.0");
+  }
 
-    String teachesClasses = "";
-    for (var teachesClass in t.classes) {
-      teachesClasses += teachesClass.name + "; ";
-    }
+  showWithMToN(){
+    Course c = Course();
+    c.id = "x.0";
+    c.name = "Demons 1";
+    c.teacher = Orm.get<Teacher>("t.0");
+
+    Student s1 = Student();
+    s1.id = "s.0";
+    s1.name = "Aalo";
+    s1.firstName = "Alice";
+    s1.gender = Gender.female;
+    s1.birthDate = DateTime(1990, 1 , 12);
+    s1.grade = 1;
+    
+    Orm.save(s1);
+
+    c.students.add(s1);
+    
+    Student s2 = Student();
+    s2.id = "s.1";
+    s2.name = "Bumblebee";
+    s2.firstName = "Bernard";
+    s2.gender = Gender.male;
+    s2.birthDate = DateTime(1991, 9 , 23);
+    s2.grade = 2;
+    
+    Orm.save(s2);
+
+    c.students.add(s2);
+
+    Course courseWithStudents = Orm.get<Course>("x.0");
   }
 }

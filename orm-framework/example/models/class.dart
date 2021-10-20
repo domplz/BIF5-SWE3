@@ -4,11 +4,11 @@ import 'package:orm_framework/src/annotations/primarykey_annotation.dart';
 
 import 'teacher.dart';
 
-@EntityAnnotation("CLASSES")
+@EntityAnnotation(tableName: "CLASSES")
 class Class {
   @PrimaryKeyAnnotation()
   late String id;
   late String name;
-  @ForeignKeyAnnotation("KTEACHER")
+  @ForeignKeyAnnotation(remoteColumnName: "KTEACHER")
   late Teacher teacher;
 }

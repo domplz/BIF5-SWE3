@@ -29,7 +29,7 @@ void main() {
 }
 
 class TestClass {
-  @PrimaryKeyAnnotation("TestField", String)
+  @PrimaryKeyAnnotation(columnName: "TestField", columnType: String)
   String test;
   TestClass(this.test);
 }

@@ -94,7 +94,7 @@ void main() {
 
 }
 
-@EntityAnnotation("TestClass")
+@EntityAnnotation(tableName: "TestClass")
 class TestClass {
   @PrimaryKeyAnnotation()
   late String test;
@@ -107,14 +107,14 @@ class TestClass {
 class TestClassWithEnum {
   @PrimaryKeyAnnotation()
   late String id;
-  @FieldAnnotation("enumValue", int, true)
+  @FieldAnnotation(columnName: "enumValue", columnType: int, nullable: true)
   TestEnum? enumValue;
 }
 
 class TestClassWithEnumAsString {
   @PrimaryKeyAnnotation()
   late String id;
-  @FieldAnnotation("enumValue", String, true)
+  @FieldAnnotation(columnName: "enumValue", columnType: String, nullable: true)
   TestEnum? enumValue;
 }
 

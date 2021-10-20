@@ -6,13 +6,13 @@ import 'class.dart';
 import 'course.dart';
 import 'person.dart';
 
-@EntityAnnotation("TEACHERS")
+@EntityAnnotation(tableName: "TEACHERS")
 class Teacher extends Person {
   late int salary;
-  @FieldAnnotation("HDATE")
+  @FieldAnnotation(columnName: "HDATE")
   late DateTime hireDate;
-  @ForeignKeyAnnotation("KTEACHER")
+  @ForeignKeyAnnotation(columnName: "KTEACHER")
   late List<Class> classes;
-  @ForeignKeyAnnotation("KTEACHER")
+  @ForeignKeyAnnotation(columnName: "KTEACHER")
   late List<Course> courses;
 }
