@@ -29,7 +29,12 @@ class Orm {
     return _entities[type]!;
   }
 
-  static save(Object object) async {
+  static save(Object object) {
+    if(cache != null && !cache!.hasChanged(object)){
+      return;
+    }
+
+
     OrmEntity entity = Orm.getEntity(object);
 
     String commandText = "INSERT INTO ${entity.tableName} (";
@@ -116,8 +121,8 @@ class Orm {
   }
 
   static Object createObject(Type t, Object primaryKey, List<Object>? localCache) {
+    // todo remove lines bc of reasons
     Object? cacheObject = searchCache(t, primaryKey, localCache);
-
     if (cacheObject != null) {
       return cacheObject;
     }
@@ -169,13 +174,11 @@ class Orm {
           element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
     }
     
-    var createdObject = instance.reflectee;
-
     if(cache != null){
-      cache!.put(createdObject);
+      cache!.put(instance.reflectee);
     }
 
-    return createdObject;
+    return instance.reflectee;
   }
 
   static Object? searchCache(Type type, Object primaryKey, List<Object>? localCache) {

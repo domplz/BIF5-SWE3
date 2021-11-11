@@ -1,5 +1,6 @@
 import 'package:orm_framework/orm_framework.dart';
 import 'package:orm_framework/src/default_cache.dart';
+import 'package:orm_framework/src/tracking_cache.dart';
 
 import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -16,6 +17,9 @@ import 'models/teacher.dart';
 void main() {
   open.overrideFor(OperatingSystem.windows, _openOnWindows);
   Orm.database = sqlite3.open("test.sqlite");
+
+  // Orm.cache = TrackingCache();
+  // Orm.cache = DefaultCache();
 
   var demo = OrmDemo();
   demo.showInsert();

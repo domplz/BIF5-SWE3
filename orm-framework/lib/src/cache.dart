@@ -8,4 +8,6 @@ abstract class Cache {
   bool contains(Type type, Object primaryKey);
 
   bool containsObject(Object object);
+
+  bool hasChanged(Object object);
 }

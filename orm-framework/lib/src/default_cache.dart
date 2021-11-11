@@ -49,4 +49,8 @@ class DefaultCache implements Cache {
     cache.remove(Orm.getEntity(object).primaryKey.getValue(object));
   }
 
+  @override
+  bool hasChanged(Object object) {
+    return true;
+  }
 }
