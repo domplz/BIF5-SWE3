@@ -79,6 +79,14 @@ class Orm {
 
     return typedList;
   }
+  
+  static void delete(Object object){
+    OrmEntity entityToDelete = Orm.getEntity(object);
+
+    String commandText = "DELETE FROM ${entityToDelete.tableName} WHERE ${entityToDelete.primaryKey.columnName} = ?";
+    
+    database.execute(commandText, [entityToDelete.primaryKey.getValue(object)]);
+  }
 
   static List<Object> createAllObjects(Type type) {
     String commandText = Orm.getEntity(type).getSql();
