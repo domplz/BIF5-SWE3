@@ -1,5 +1,6 @@
 import 'dart:mirrors';
 
+import 'package:orm_framework/src/cache.dart';
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
 import 'package:sqlite3/sqlite3.dart';
 
@@ -7,6 +8,8 @@ class Orm {
   static final Map<Type, OrmEntity> _entities = <Type, OrmEntity>{};
 
   static late Database database;
+
+  static Cache? cache;
 
   static OrmEntity getEntity(Object object) {
     // get type from object
@@ -64,6 +67,10 @@ class Orm {
     for (var field in entity.externals) {
       field.updateReferences(object);
     }
+    
+    if(cache != null){
+      cache!.put(object);
+    }
   }
 
   static T get<T>(Object primaryKey) {
@@ -86,6 +93,10 @@ class Orm {
     String commandText = "DELETE FROM ${entityToDelete.tableName} WHERE ${entityToDelete.primaryKey.columnName} = ?";
     
     database.execute(commandText, [entityToDelete.primaryKey.getValue(object)]);
+    
+    if(cache != null){
+      cache!.remove(object);
+    }
   }
 
   static List<Object> createAllObjects(Type type) {
@@ -157,11 +168,22 @@ class Orm {
       instance.setField(
           element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
     }
+    
+    var createdObject = instance.reflectee;
 
-    return instance.reflectee;
+    if(cache != null){
+      cache!.put(createdObject);
+    }
+
+    return createdObject;
   }
 
   static Object? searchCache(Type type, Object primaryKey, List<Object>? localCache) {
+
+    if (cache != null && cache!.contains(type, primaryKey)){
+      return cache!.get(type, primaryKey);
+    }
+
     if (localCache != null && localCache.isNotEmpty) {
       for (Object object in localCache) {
         if (object.runtimeType == type && Orm.getEntity(type).primaryKey.getValue(object) == primaryKey) {

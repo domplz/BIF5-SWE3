@@ -7,7 +7,9 @@ import 'gender.dart';
 
 @EntityAnnotation(tableName: "PERSONS")
 class Person {
-  int _instanceNumber = 0;
+  static int _instanceCounter = 0;
+  @IgnoreAnnotation()
+  late int instanceNumber = _instanceCounter++;
 
   @PrimaryKeyAnnotation()
   late String id;
@@ -18,8 +20,4 @@ class Person {
   @FieldAnnotation(columnType: int)
   late Gender gender;
 
-  @IgnoreAnnotation()
-  int get instanceNumber {
-    return _instanceNumber++;
-  }
 }

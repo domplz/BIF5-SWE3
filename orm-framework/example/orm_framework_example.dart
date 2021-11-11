@@ -1,4 +1,5 @@
 import 'package:orm_framework/orm_framework.dart';
+import 'package:orm_framework/src/default_cache.dart';
 
 import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -23,6 +24,7 @@ void main() {
   demo.showWithForeignKeyList();
   demo.showWithMToN();
   demo.createAndDelete();
+  demo.withCache();
 
   Orm.database.dispose();
 }
@@ -128,5 +130,20 @@ class OrmDemo {
     Orm.save(t);
 
     Orm.delete(t);
+  }
+
+  void withCache(){
+    _showInstances();
+
+    Orm.cache = DefaultCache();
+
+    _showInstances();
+  }
+
+  void _showInstances(){
+    for (int i = 0; i < 7; i++){
+      Teacher t = Orm.get<Teacher>("t.0");
+      print("Object [ ${t. id} ] instance no. ${t.instanceNumber.toString()}");
+    }
   }
 }
