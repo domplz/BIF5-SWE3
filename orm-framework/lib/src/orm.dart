@@ -30,10 +30,9 @@ class Orm {
   }
 
   static save(Object object) {
-    if(cache != null && !cache!.hasChanged(object)){
+    if (cache != null && !cache!.hasChanged(object)) {
       return;
     }
-
 
     OrmEntity entity = Orm.getEntity(object);
 
@@ -72,8 +71,8 @@ class Orm {
     for (var field in entity.externals) {
       field.updateReferences(object);
     }
-    
-    if(cache != null){
+
+    if (cache != null) {
       cache!.put(object);
     }
   }
@@ -91,15 +90,15 @@ class Orm {
 
     return typedList;
   }
-  
-  static void delete(Object object){
+
+  static void delete(Object object) {
     OrmEntity entityToDelete = Orm.getEntity(object);
 
     String commandText = "DELETE FROM ${entityToDelete.tableName} WHERE ${entityToDelete.primaryKey.columnName} = ?";
-    
+
     database.execute(commandText, [entityToDelete.primaryKey.getValue(object)]);
-    
-    if(cache != null){
+
+    if (cache != null) {
       cache!.remove(object);
     }
   }
@@ -133,8 +132,7 @@ class Orm {
 
   static Object createObjectFromRow(Type type, Map<String, dynamic> row, List<Object>? localCache) {
     var entity = Orm.getEntity(type);
-    Object? cacheObject = searchCache(
-        type, entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache), localCache);
+    Object? cacheObject = searchCache(type, entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache), localCache);
 
     late InstanceMirror instance;
     if (cacheObject != null) {
@@ -153,8 +151,7 @@ class Orm {
     }
 
     for (var element in entity.internals) {
-      instance.setField(
-          element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()], localCache));
+      instance.setField(element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()], localCache));
     }
 
     for (var element in entity.externals) {
@@ -165,11 +162,10 @@ class Orm {
       } else {
         throw ArgumentError("Cannot create the instance of the type '$type'.");
       }
-      instance.setField(
-          element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
+      instance.setField(element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
     }
-    
-    if(cache != null){
+
+    if (cache != null) {
       cache!.put(instance.reflectee);
     }
 
@@ -177,8 +173,7 @@ class Orm {
   }
 
   static Object? searchCache(Type type, Object primaryKey, List<Object>? localCache) {
-
-    if (cache != null && cache!.contains(type, primaryKey)){
+    if (cache != null && cache!.contains(type, primaryKey)) {
       return cache!.get(type, primaryKey);
     }
 

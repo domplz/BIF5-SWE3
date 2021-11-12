@@ -25,5 +25,5 @@ class BaseClass {
 
 class InheritedClass extends BaseClass {
   String inheritedClassProperty;
-  InheritedClass(this.inheritedClassProperty, String baseProperty) : super (baseProperty);
+  InheritedClass(this.inheritedClassProperty, String baseProperty) : super(baseProperty);
 }

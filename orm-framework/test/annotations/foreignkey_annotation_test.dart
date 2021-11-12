@@ -33,7 +33,8 @@ void main() {
 }
 
 class TestClass {
-  @ForeignKeyAnnotation(columnName: "TestField", columnType: String, nullable: true, assignmentTable: "AssignmentTable", remoteColumnName: "RemoteColumnName")
+  @ForeignKeyAnnotation(
+      columnName: "TestField", columnType: String, nullable: true, assignmentTable: "AssignmentTable", remoteColumnName: "RemoteColumnName")
   String test;
   TestClass(this.test);
 }

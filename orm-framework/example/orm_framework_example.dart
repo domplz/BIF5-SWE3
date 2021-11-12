@@ -120,8 +120,7 @@ class OrmDemo {
     Course courseWithStudents = Orm.get<Course>("x.0");
   }
 
-  void createAndDelete(){
-    
+  void createAndDelete() {
     Teacher t = Teacher();
     t.hireDate = DateTime(2010, 11, 1);
     t.salary = 3000;
@@ -136,7 +135,7 @@ class OrmDemo {
     Orm.delete(t);
   }
 
-  void withCache(){
+  void withCache() {
     _showInstances();
 
     Orm.cache = DefaultCache();
@@ -144,10 +143,10 @@ class OrmDemo {
     _showInstances();
   }
 
-  void _showInstances(){
-    for (int i = 0; i < 7; i++){
+  void _showInstances() {
+    for (int i = 0; i < 7; i++) {
       Teacher t = Orm.get<Teacher>("t.0");
-      print("Object [ ${t. id} ] instance no. ${t.instanceNumber.toString()}");
+      print("Object [ ${t.id} ] instance no. ${t.instanceNumber.toString()}");
     }
   }
 }

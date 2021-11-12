@@ -7,7 +7,6 @@ void main() {
     setUp(() {});
 
     test('Search Cache', () {
-
       var cache = <Object>[
         TestClass("test"),
         TestClass("test2"),
@@ -22,9 +21,7 @@ void main() {
       expect(Orm.searchCache(TestClass, "test", <Object>[]), equals(null));
     });
 
-    
     test('Search Cache (right PK but wrong type)', () {
-
       var cache = <Object>[
         TestClass("test"),
         TestClass2("test2"),
@@ -44,5 +41,5 @@ class TestClass {
 }
 
 class TestClass2 extends TestClass {
-  TestClass2(String test): super(test);
+  TestClass2(String test) : super(test);
 }

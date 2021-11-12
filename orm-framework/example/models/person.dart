@@ -19,5 +19,4 @@ class Person {
   late DateTime birthDate;
   @FieldAnnotation(columnType: int)
   late Gender gender;
-
 }

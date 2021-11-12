@@ -24,7 +24,7 @@ void main() {
         "TEST": "TestProperty",
         "ALSOTEST": 321,
       };
-      
+
       var object = Orm.createObjectFromRow(TestClass, resultMap, null) as TestClass;
       expect(object.runtimeType, equals(TestClass));
       expect(object.test, equals("TestProperty"));
@@ -36,23 +36,22 @@ void main() {
         "TEST": null,
         "ALSOTEST": null,
       };
-      
+
       var object = Orm.createObjectFromRow(TestClass, resultMap, null) as TestClass;
       expect(object.runtimeType, equals(TestClass));
       expect(object.test, isEmpty);
       expect(object.alsoTest, equals(0));
     });
 
-    
     test('With enums as INT', () {
       var resultMap = <String, dynamic>{
         "ID": "NiceIdMan",
         "ENUMVALUE": 1,
       };
-      
+
       var object = Orm.createObjectFromRow(TestClassWithEnum, resultMap, null) as TestClassWithEnum;
       expect(object.runtimeType, equals(TestClassWithEnum));
-      
+
       // cannot do the following, as creation with reflection does something weired with it
       // expect((object as TestClassWithEnum).enumValue, equals(TestEnum.valueTwo));
       expect(object.enumValue?.index, equals(TestEnum.valueTwo.index));
@@ -65,10 +64,10 @@ void main() {
         "ID": "NiceIdMan",
         "ENUMVALUE": null,
       };
-      
+
       var object = Orm.createObjectFromRow(TestClassWithEnum, resultMap, null) as TestClassWithEnum;
       expect(object.runtimeType, equals(TestClassWithEnum));
-      
+
       expect(object.enumValue, equals(null));
       expect(object.enumValue?.index, equals(null));
       expect(object.enumValue?.runtimeType, equals(null));
@@ -80,10 +79,10 @@ void main() {
         "ID": "NiceIdMan",
         "ENUMVALUE": TestEnum.valueTwo.toString(),
       };
-      
+
       var object = Orm.createObjectFromRow(TestClassWithEnumAsString, resultMap, null) as TestClassWithEnumAsString;
       expect(object.runtimeType, equals(TestClassWithEnumAsString));
-      
+
       // cannot do the following, as creation with reflection does something weired with it
       // expect(object.enumValue, equals(TestEnum.valueTwo));
       expect(object.enumValue?.index, equals(TestEnum.valueTwo.index));
@@ -91,7 +90,6 @@ void main() {
       expect(object.enumValue?.toString(), equals(TestEnum.valueTwo.toString()));
     });
   });
-
 }
 
 @EntityAnnotation(tableName: "TestClass")
@@ -120,6 +118,6 @@ class TestClassWithEnumAsString {
 
 enum TestEnum {
   valueOne,
-  valueTwo, 
+  valueTwo,
   valueThree,
 }
