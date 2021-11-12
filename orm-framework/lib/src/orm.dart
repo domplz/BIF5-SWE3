@@ -121,12 +121,6 @@ class Orm {
   }
 
   static Object createObject(Type t, Object primaryKey, List<Object>? localCache) {
-    // todo remove lines bc of reasons
-    Object? cacheObject = searchCache(t, primaryKey, localCache);
-    if (cacheObject != null) {
-      return cacheObject;
-    }
-
     String commandText = Orm.getEntity(t).getSql() + " WHERE " + Orm.getEntity(t).primaryKey.columnName + " = ? ";
     ResultSet resultSet = database.select(commandText, [primaryKey]);
 
@@ -152,10 +146,11 @@ class Orm {
       } else {
         throw ArgumentError("Cannot create the instance of the type '$type'.");
       }
-    }
 
-    localCache ??= [];
-    localCache.add(instance.reflectee);
+      // add to cache
+      localCache ??= [];
+      localCache.add(instance.reflectee);
+    }
 
     for (var element in entity.internals) {
       instance.setField(

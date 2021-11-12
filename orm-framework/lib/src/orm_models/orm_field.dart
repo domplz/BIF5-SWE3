@@ -42,7 +42,7 @@ class OrmField {
     // handle different field types
     if (value is bool) {
       if (columnType == int) {
-        return ((value as bool) ? 1 : 0).toString();
+        return (value ? 1 : 0).toString();
       }
     }
 
@@ -166,8 +166,13 @@ class OrmField {
     ResultSet resultSet = Orm.database.select(commandText, parameters);
 
     for (var result in resultSet) {
-      (list as List)
-          .add(Orm.createObjectFromRow(reflectType(type).typeArguments.first.reflectedType, result, localCache));
+      // check if element is in cache
+      var element = Orm.searchCache(reflectType(type).typeArguments.first.reflectedType, result[entity.primaryKey.columnName.toUpperCase()], localCache);
+      
+      // if element is null, load it from db
+      element ??= Orm.createObjectFromRow(reflectType(type).typeArguments.first.reflectedType, result, localCache);
+
+      (list as List).add(element);
     }
 
     return list;
