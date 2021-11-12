@@ -2,11 +2,10 @@ import 'package:orm_framework/orm_framework.dart';
 import 'package:orm_framework/src/cache.dart';
 
 class DefaultCache implements Cache {
-  
-  final Map<Type, Map<Object,Object>> _caches = <Type, Map<Object,Object>>{};
+  final Map<Type, Map<Object, Object>> _caches = <Type, Map<Object, Object>>{};
 
-  Map<Object, Object> _getCache(Type type){
-    if(_caches.containsKey(type)){
+  Map<Object, Object> _getCache(Type type) {
+    if (_caches.containsKey(type)) {
       return _caches[type]!;
     }
 
@@ -23,14 +22,20 @@ class DefaultCache implements Cache {
 
   @override
   bool containsObject(Object object) {
-    return contains(object.runtimeType, Orm.getEntity(object).primaryKey.getValue(object));
+    Object? pkValue = Orm.getEntity(object).primaryKey.getValue(object);
+
+    if (pkValue != null) {
+      return contains(object.runtimeType, pkValue);
+    }
+
+    return false;
   }
 
   @override
   Object? get(Type type, Object primaryKey) {
     Map<Object, Object> cache = _getCache(type);
 
-    if(cache.containsKey(primaryKey)){
+    if (cache.containsKey(primaryKey)) {
       return cache[primaryKey]!;
     }
 
@@ -39,8 +44,11 @@ class DefaultCache implements Cache {
 
   @override
   void put(Object object) {
-    var cache = _getCache(object.runtimeType);
-    cache[Orm.getEntity(object).primaryKey.getValue(object)] = object;
+    var pkValue = Orm.getEntity(object).primaryKey.getValue(object);
+    if (pkValue != null) {
+      var cache = _getCache(object.runtimeType);
+      cache[pkValue] = object;
+    }
   }
 
   @override
