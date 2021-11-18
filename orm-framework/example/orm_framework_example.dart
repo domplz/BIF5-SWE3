@@ -146,9 +146,13 @@ class OrmDemo {
 
   void withQuery() {
     var studentsWithGradGt1 = Orm.from<Student>().greaterThan("grade", 1).getList();
+
+    // most likely some concurrency shit
     var studentsWithGradGt1AndFirstNameAl =
-        Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%", true).getList();
-    var allStudents = Orm.from<Student>();
+        Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%", false).getList();
+    var allStudents = Orm.from<Student>().getList();
+
+    String wtfman = "wtf";
   }
 
   void _showInstances() {
