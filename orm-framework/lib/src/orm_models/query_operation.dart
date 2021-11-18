@@ -3,12 +3,12 @@ enum QueryOperation {
   not,
   and,
   or,
-  grp,
-  endgrp,
+  beginGroup,
+  endGroup,
   equals,
   like,
   // bc in is a keyword
   isIn,
-  gt,
-  lt,
+  greaterThan,
+  lessThan,
 }

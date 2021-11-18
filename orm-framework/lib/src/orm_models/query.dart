@@ -9,12 +9,12 @@ import 'package:orm_framework/src/orm_models/query_operation.dart';
 
 class Query<T> with IterableMixin<T> {
   final Query<T>? _previous;
-  final QueryOperation _operation = QueryOperation.nop;
-  final List<Object> _args = [];
-  List<T> _internalValues = [];
+  QueryOperation _operation = QueryOperation.nop;
+  List<Object> _args = [];
+  final List<T> _internalValues = [];
 
   @override
-  Iterator<T> get iterator => _internalValues.iterator;
+  Iterator<T> get iterator => _values.iterator;
 
   Query(this._previous);
 
@@ -50,10 +50,10 @@ class Query<T> with IterableMixin<T> {
         case QueryOperation.not:
           not = true;
           break;
-        case QueryOperation.grp:
+        case QueryOperation.beginGroup:
           opbrk += "(";
           break;
-        case QueryOperation.endgrp:
+        case QueryOperation.endGroup:
           opbrk += ")";
           break;
         case QueryOperation.equals:
@@ -112,11 +112,11 @@ class Query<T> with IterableMixin<T> {
           not = false;
           break;
 
-        case QueryOperation.gt:
-        case QueryOperation.lt:
+        case QueryOperation.greaterThan:
+        case QueryOperation.lessThan:
           field = entity.getFieldByName(i._args[0] as String);
 
-          if (i._operation == QueryOperation.gt) {
+          if (i._operation == QueryOperation.greaterThan) {
             op = (not ? " <= " : " > ");
           } else {
             op = (not ? " >= " : " < ");
@@ -154,5 +154,59 @@ class Query<T> with IterableMixin<T> {
     }
 
     return _internalValues;
+  }
+
+  Query<T> _setOp(QueryOperation operation, List<Object> args) {
+    _operation = operation;
+    _args = args;
+
+    return Query<T>(this);
+  }
+
+  // public methods
+  Query<T> not(List<Object> args) {
+    return _setOp(QueryOperation.not, args);
+  }
+
+  Query<T> and(List<Object> args) {
+    return _setOp(QueryOperation.and, args);
+  }
+
+  Query<T> or(List<Object> args) {
+    return _setOp(QueryOperation.or, args);
+  }
+
+  Query<T> beginGroup(List<Object> args) {
+    return _setOp(QueryOperation.beginGroup, args);
+  }
+
+  Query<T> endGroup(List<Object> args) {
+    return _setOp(QueryOperation.endGroup, args);
+  }
+
+  Query<T> equals(String field, Object value, {bool ignoreCase = false}) {
+    return _setOp(QueryOperation.equals, [field, value, ignoreCase]);
+  }
+
+  Query<T> like(String field, Object value, {bool ignoreCase = false}) {
+    return _setOp(QueryOperation.like, [field, value, ignoreCase]);
+  }
+
+  Query<T> isIn(String field, List<Object> values) {
+    var argList = List<Object>.from(values);
+    argList.insert(0, field);
+    return _setOp(QueryOperation.like, argList);
+  }
+
+  Query<T> greaterThan(String field, Object value) {
+    return _setOp(QueryOperation.greaterThan, [field, value]);
+  }
+
+  Query<T> lessThan(String field, Object value) {
+    return _setOp(QueryOperation.lessThan, [field, value]);
+  }
+
+  List<T> getList() {
+    return List<T>.from(_values);
   }
 }
