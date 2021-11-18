@@ -35,8 +35,14 @@ class OrmEntity {
           this,
           value,
           value.type.reflectedType,
-          fieldAnnotation?.columnName ?? foreignKeyAnnotation?.columnName ?? primaryKeyAnnotation?.columnName ?? MirrorSystem.getName(key),
-          fieldAnnotation?.columnType ?? foreignKeyAnnotation?.columnType ?? primaryKeyAnnotation?.columnType ?? value.type.reflectedType,
+          fieldAnnotation?.columnName ??
+              foreignKeyAnnotation?.columnName ??
+              primaryKeyAnnotation?.columnName ??
+              MirrorSystem.getName(key),
+          fieldAnnotation?.columnType ??
+              foreignKeyAnnotation?.columnType ??
+              primaryKeyAnnotation?.columnType ??
+              value.type.reflectedType,
           primaryKeyAnnotation != null,
           foreignKeyAnnotation != null,
           fieldAnnotation?.nullable ?? foreignKeyAnnotation?.nullable ?? primaryKeyAnnotation?.nullable ?? false,
@@ -94,6 +100,15 @@ class OrmEntity {
       }
     }
     throw Exception(columnName + "-field not found!");
+  }
+
+  OrmField getFieldByName(String name) {
+    for (OrmField internalField in fields) {
+      if (MirrorSystem.getName(internalField.member.simpleName) == name) {
+        return internalField;
+      }
+    }
+    throw Exception(name + "-field not found!");
   }
 
   T? _getAnnotationOrNull<T>(DeclarationMirror mirror) {

@@ -132,7 +132,8 @@ class Orm {
 
   static Object createObjectFromRow(Type type, Map<String, dynamic> row, List<Object>? localCache) {
     var entity = Orm.getEntity(type);
-    Object? cacheObject = searchCache(type, entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache), localCache);
+    Object? cacheObject = searchCache(
+        type, entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache), localCache);
 
     late InstanceMirror instance;
     if (cacheObject != null) {
@@ -151,7 +152,8 @@ class Orm {
     }
 
     for (var element in entity.internals) {
-      instance.setField(element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()], localCache));
+      instance.setField(
+          element.member.simpleName, element.toFieldType(row[element.columnName.toUpperCase()], localCache));
     }
 
     for (var element in entity.externals) {
@@ -162,7 +164,8 @@ class Orm {
       } else {
         throw ArgumentError("Cannot create the instance of the type '$type'.");
       }
-      instance.setField(element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
+      instance.setField(
+          element.member.simpleName, element.fill(externalInstance.reflectee, instance.reflectee, localCache));
     }
 
     if (cache != null) {
@@ -184,5 +187,16 @@ class Orm {
         }
       }
     }
+  }
+
+  static List<Type> getChildTypes(Type type) {
+    List<Type> types = [];
+    for (var item in _entities.keys) {
+      if (!reflectClass(type).isAbstract && reflectType(item).isAssignableTo(reflectType(type))) {
+        types.add(item);
+      }
+    }
+
+    return types;
   }
 }
