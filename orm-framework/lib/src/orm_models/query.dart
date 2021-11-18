@@ -1,6 +1,5 @@
 import 'dart:collection';
 import 'dart:mirrors';
-import 'package:tuple/tuple.dart';
 
 import 'package:orm_framework/orm_framework.dart';
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
@@ -30,7 +29,7 @@ class Query<T> with IterableMixin<T> {
     OrmEntity entity = Orm.getEntity(type);
 
     String sql = entity.getSql();
-    List<Tuple2<String, Object>> parameters = [];
+    List<String> parameters = [];
     String conj = " WHERE ";
     bool not = false;
     String opbrk = "";
@@ -58,8 +57,7 @@ class Query<T> with IterableMixin<T> {
           break;
         case QueryOperation.equals:
         case QueryOperation.like:
-          String arg = i._args.first.toString();
-          field = entity.getFieldByName(arg.toString());
+          field = entity.getFieldByName(i._args[0] as String);
 
           if (i._operation == QueryOperation.like) {
             op = (not ? " NOT LIKE " : " LIKE ");
@@ -69,23 +67,25 @@ class Query<T> with IterableMixin<T> {
 
           sql += clbrk + conj + opbrk;
 
-          if (_args[2] as bool) {
-            sql += "LOWER(${field.columnName})";
+          if (i._args[2] as bool) {
+            sql += " LOWER(${field.columnName}) ";
           } else {
             sql += field.columnName;
           }
 
-          if ((_args[2]) as bool) {
-            sql += "LOWER(${n.toString()})";
+          sql += op;
+
+          if ((i._args[2]) as bool) {
+            sql += " LOWER( ? ) ";
           } else {
-            sql += n.toString();
+            sql += " ? ";
           }
 
           if ((i._args[2] as bool)) {
             i._args[1] = (i._args[1] as String).toLowerCase();
           }
 
-          parameters.add(Tuple2<String, Object>(":p" + (n++).toString(), field.toColumnType(i._args[1])));
+          parameters.add(field.toColumnType(i._args[1]));
 
           opbrk = clbrk = "";
           conj = " AND ";
@@ -101,8 +101,8 @@ class Query<T> with IterableMixin<T> {
             if (k > 1) {
               sql += ", ";
             }
-            sql += (":p" + n.toString());
-            parameters.add(Tuple2<String, Object>(":p" + (n++).toString(), field.toColumnType(i._args[k])));
+            sql += ("?");
+            parameters.add(field.toColumnType(i._args[k]));
           }
           sql += ")";
 
@@ -123,22 +123,24 @@ class Query<T> with IterableMixin<T> {
           }
 
           sql += clbrk + conj + opbrk;
-          sql += (field.columnName + op + ":p" + n.toString());
+          sql += (field.columnName + op + " ? ");
 
-          parameters.add(Tuple2<String, Object>(":p" + (n++).toString(), field.toColumnType(i._args[1])));
+          parameters.add(field.toColumnType(i._args[1]));
 
           opbrk = "";
           clbrk = "";
           conj = " AND ";
           not = false;
           break;
+        case QueryOperation.nop:
+          // ignore
+          break;
         default:
           throw UnimplementedError();
       }
     }
 
-    // todo
-    // Orm.fillList()
+    Orm.fillList(type, _internalValues, sql, parameters, localCache);
   }
 
   List<T> get _values {
@@ -148,9 +150,9 @@ class Query<T> with IterableMixin<T> {
         for (var item in Orm.getChildTypes(T)) {
           _fill(item, localCache);
         }
+      } else {
+        _fill(T, null);
       }
-    } else {
-      _fill(T.runtimeType, null);
     }
 
     return _internalValues;
@@ -168,12 +170,12 @@ class Query<T> with IterableMixin<T> {
     return _setOp(QueryOperation.not, args);
   }
 
-  Query<T> and(List<Object> args) {
-    return _setOp(QueryOperation.and, args);
+  Query<T> and([List<Object>? args]) {
+    return _setOp(QueryOperation.and, args ?? []);
   }
 
-  Query<T> or(List<Object> args) {
-    return _setOp(QueryOperation.or, args);
+  Query<T> or([List<Object>? args]) {
+    return _setOp(QueryOperation.or, args ?? []);
   }
 
   Query<T> beginGroup(List<Object> args) {
@@ -188,7 +190,7 @@ class Query<T> with IterableMixin<T> {
     return _setOp(QueryOperation.equals, [field, value, ignoreCase]);
   }
 
-  Query<T> like(String field, Object value, {bool ignoreCase = false}) {
+  Query<T> like(String field, Object value, [bool ignoreCase = false]) {
     return _setOp(QueryOperation.like, [field, value, ignoreCase]);
   }
 

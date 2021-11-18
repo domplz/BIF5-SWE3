@@ -15,5 +15,4 @@ dev_dependencies:
   test: ^1.16.0
 dependencies:
   sqlite3: ^1.2.0
-  tuple: ^2.0.0
   uuid: ^3.0.5

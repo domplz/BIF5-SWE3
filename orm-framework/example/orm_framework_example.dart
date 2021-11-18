@@ -29,6 +29,7 @@ void main() {
   demo.showWithMToN();
   demo.createAndDelete();
   demo.withCache();
+  demo.withQuery();
 
   Orm.database.dispose();
 }
@@ -141,6 +142,13 @@ class OrmDemo {
     Orm.cache = DefaultCache();
 
     _showInstances();
+  }
+
+  void withQuery() {
+    var studentsWithGradGt1 = Orm.from<Student>().greaterThan("grade", 1).getList();
+    var studentsWithGradGt1AndFirstNameAl =
+        Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%", true).getList();
+    var allStudents = Orm.from<Student>();
   }
 
   void _showInstances() {

@@ -2,6 +2,7 @@ import 'dart:mirrors';
 
 import 'package:orm_framework/src/cache.dart';
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
+import 'package:orm_framework/src/orm_models/query.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 class Orm {
@@ -103,6 +104,10 @@ class Orm {
     }
   }
 
+  static Query<T> from<T>() {
+    return Query<T>(null);
+  }
+
   static List<Object> createAllObjects(Type type) {
     String commandText = Orm.getEntity(type).getSql();
     ResultSet resultSet = database.select(commandText);
@@ -198,5 +203,17 @@ class Orm {
     }
 
     return types;
+  }
+
+  static void fillList(Type type, Object list, String sql, List<String> parameters, [List<Object>? localCache]) {
+    var results = database.select(sql, parameters);
+    fillListFromRow(type, list, results, localCache);
+  }
+
+  static void fillListFromRow(Type type, Object list, ResultSet resultSet, [List<Object>? localCache]) {
+    for (var item in resultSet) {
+      var element = createObjectFromRow(type, item, localCache);
+      (list as List).add(element);
+    }
   }
 }
