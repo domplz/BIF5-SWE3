@@ -147,20 +147,32 @@ class OrmDemo {
 
   void withQuery() {
     var aliceWithSurname =
-        Orm.from<Student>().equals("firstname", "Alice", false).and().equals("name", "aalo", true).getList();
+        Orm.from<Student>().equals("firstname", "Alice", false).and().equals("name", "aalo", true).toList();
 
-    var studentsWithGradGt1 = Orm.from<Student>().greaterThan("grade", 1).getList();
-    var studentsWithGradLt2 = Orm.from<Student>().lessThan("grade", 2).getList();
-
-    // most likely some concurrency shit
+    var studentsWithGradGt1 = Orm.from<Student>().greaterThan("grade", 1).toList();
+    var studentsWithGradLt2 = Orm.from<Student>().lessThan("grade", 2).toList();
     var studentsWithGradGt1AndFirstNameAl =
-        Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%").getList();
+        Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%").toList();
 
-    var personsNotAlice = Orm.from<Person>().not().equals("firstName", "alice", true).getList();
-    var personInAliceOrSeppi = Orm.from<Person>().isIn("firstname", ["Alice", "Seppi"]).getList();
-    var personNotInAliceOrSeppi = Orm.from<Person>().not().isIn("firstname", ["Alice", "Seppi"]).getList();
+    var personsNotAlice = Orm.from<Person>().not().equals("firstName", "alice", true).toList();
+    var personInAliceOrSeppi = Orm.from<Person>().isIn("firstname", ["Alice", "Seppi"]).toList();
+    var personNotInAliceOrSeppi = Orm.from<Person>().not().isIn("firstname", ["Alice", "Seppi"]).toList();
 
-    var allPersons = Orm.from<Person>().getList();
+    var useGroupReturnAliceAndBernard = Orm.from<Person>()
+        .beginGroup()
+        .equals("firstname", "Alice", false)
+        .and()
+        .equals("name", "aalo", true)
+        .endGroup()
+        .or()
+        .beginGroup()
+        .equals("firstname", "Bernard", false)
+        .and()
+        .equals("name", "Bumblebee", true)
+        .endGroup()
+        .toList();
+
+    var allPersons = Orm.from<Person>().toList();
 
     String wtfman = "wtf";
   }

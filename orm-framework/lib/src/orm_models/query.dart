@@ -51,7 +51,7 @@ class Query<T> with IterableMixin<T> {
           opbrk += "(";
           break;
         case QueryOperation.endGroup:
-          opbrk += ")";
+          clbrk += ")";
           break;
         case QueryOperation.equals:
         case QueryOperation.like:
@@ -142,6 +142,11 @@ class Query<T> with IterableMixin<T> {
         default:
           throw UnimplementedError();
       }
+    }
+
+    // if the closing brake has not been set yet, close it.
+    if (clbrk != "") {
+      sql += clbrk;
     }
 
     return Orm.getListFromSql<T>(type, sql, parameters, localCache);
