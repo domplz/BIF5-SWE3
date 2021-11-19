@@ -205,15 +205,18 @@ class Orm {
     return types;
   }
 
-  static void fillList(Type type, Object list, String sql, List<String> parameters, [List<Object>? localCache]) {
+  static List<T> getListFromSql<T>(Type type, String sql, List<String> parameters, [List<Object>? localCache]) {
     var results = database.select(sql, parameters);
-    fillListFromRow(type, list, results, localCache);
+    return _getListFromRow<T>(type, results, localCache);
   }
 
-  static void fillListFromRow(Type type, Object list, ResultSet resultSet, [List<Object>? localCache]) {
+  static List<T> _getListFromRow<T>(Type type, ResultSet resultSet, [List<Object>? localCache]) {
+    var list = <T>[];
     for (var item in resultSet) {
-      var element = createObjectFromRow(type, item, localCache);
-      (list as List).add(element);
+      var element = createObjectFromRow(type, item, localCache) as T;
+      list.add(element);
     }
+
+    return list;
   }
 }

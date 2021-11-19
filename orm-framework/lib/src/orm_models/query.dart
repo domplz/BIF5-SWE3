@@ -144,9 +144,7 @@ class Query<T> with IterableMixin<T> {
       }
     }
 
-    List<T> internalList = [];
-    Orm.fillList(type, internalList, sql, parameters, localCache);
-    return internalList;
+    return Orm.getListFromSql<T>(type, sql, parameters, localCache);
   }
 
   List<T> get _values {
@@ -212,9 +210,5 @@ class Query<T> with IterableMixin<T> {
 
   Query<T> lessThan(String field, Object value) {
     return _setOp(QueryOperation.lessThan, [field, value]);
-  }
-
-  List<T> getList() {
-    return List<T>.from(_values);
   }
 }
