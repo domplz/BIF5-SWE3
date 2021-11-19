@@ -10,14 +10,13 @@ class Query<T> with IterableMixin<T> {
   final Query<T>? _previous;
   QueryOperation _operation = QueryOperation.noOperation;
   List<Object> _args = [];
-  final List<T> _internalValues = [];
 
   @override
   Iterator<T> get iterator => _values.iterator;
 
   Query(this._previous);
 
-  void _fill(Type type, List<Object>? localCache) {
+  List<T> _getListForType(Type type, [List<Object>? localCache]) {
     List<Query<T>> operations = [];
 
     Query<T>? query = this;
@@ -145,22 +144,23 @@ class Query<T> with IterableMixin<T> {
       }
     }
 
-    Orm.fillList(type, _internalValues, sql, parameters, localCache);
+    List<T> internalList = [];
+    Orm.fillList(type, internalList, sql, parameters, localCache);
+    return internalList;
   }
 
   List<T> get _values {
-    if (_internalValues.isEmpty) {
-      if (reflectClass(T).isAbstract) {
-        List<Object>? localCache;
-        for (var item in Orm.getChildTypes(T)) {
-          _fill(item, localCache);
-        }
-      } else {
-        _fill(T, null);
+    List<T> internalValues = [];
+    if (reflectClass(T).isAbstract) {
+      List<Object>? localCache;
+      for (var item in Orm.getChildTypes(T)) {
+        internalValues.addAll(_getListForType(item, localCache));
       }
+    } else {
+      internalValues.addAll(_getListForType(T));
     }
 
-    return _internalValues;
+    return internalValues;
   }
 
   Query<T> _setOp(QueryOperation operation, List<Object> args) {
