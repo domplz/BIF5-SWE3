@@ -95,7 +95,7 @@ class OrmEntity {
 
   OrmField getFieldForColumn(String columnName) {
     for (OrmField internalField in internals) {
-      if (columnName.toUpperCase() == internalField.columnName.toUpperCase()) {
+      if (columnName.toLowerCase() == internalField.columnName.toLowerCase()) {
         return internalField;
       }
     }
@@ -104,7 +104,7 @@ class OrmEntity {
 
   OrmField getFieldByName(String name) {
     for (OrmField internalField in fields) {
-      if (MirrorSystem.getName(internalField.member.simpleName) == name) {
+      if (MirrorSystem.getName(internalField.member.simpleName).toLowerCase() == name.toLowerCase()) {
         return internalField;
       }
     }

@@ -11,6 +11,7 @@ import 'dart:io';
 import 'models/class.dart';
 import 'models/course.dart';
 import 'models/gender.dart';
+import 'models/person.dart';
 import 'models/student.dart';
 import 'models/teacher.dart';
 
@@ -145,12 +146,21 @@ class OrmDemo {
   }
 
   void withQuery() {
+    var aliceWithSurname =
+        Orm.from<Student>().equals("firstname", "Alice", false).and().equals("name", "aalo", true).getList();
+
     var studentsWithGradGt1 = Orm.from<Student>().greaterThan("grade", 1).getList();
+    var studentsWithGradLt2 = Orm.from<Student>().lessThan("grade", 2).getList();
 
     // most likely some concurrency shit
     var studentsWithGradGt1AndFirstNameAl =
-        Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%", false).getList();
-    var allStudents = Orm.from<Student>().getList();
+        Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%").getList();
+
+    var personsNotAlice = Orm.from<Person>().not().equals("firstName", "alice", true).getList();
+    var personInAliceOrSeppi = Orm.from<Person>().isIn("firstname", ["Alice", "Seppi"]).getList();
+    var personNotInAliceOrSeppi = Orm.from<Person>().not().isIn("firstname", ["Alice", "Seppi"]).getList();
+
+    var allPersons = Orm.from<Person>().getList();
 
     String wtfman = "wtf";
   }

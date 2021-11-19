@@ -8,7 +8,7 @@ import 'package:orm_framework/src/orm_models/query_operation.dart';
 
 class Query<T> with IterableMixin<T> {
   final Query<T>? _previous;
-  QueryOperation _operation = QueryOperation.nop;
+  QueryOperation _operation = QueryOperation.noOperation;
   List<Object> _args = [];
   final List<T> _internalValues = [];
 
@@ -34,7 +34,6 @@ class Query<T> with IterableMixin<T> {
     bool not = false;
     String opbrk = "";
     String clbrk = "";
-    int n = 0;
     String op;
 
     OrmField field;
@@ -67,7 +66,8 @@ class Query<T> with IterableMixin<T> {
 
           sql += clbrk + conj + opbrk;
 
-          if (i._args[2] as bool) {
+          bool isIgnoreCase = i._args[2] as bool;
+          if (isIgnoreCase) {
             sql += " LOWER(${field.columnName}) ";
           } else {
             sql += field.columnName;
@@ -75,19 +75,21 @@ class Query<T> with IterableMixin<T> {
 
           sql += op;
 
-          if ((i._args[2]) as bool) {
+          if (isIgnoreCase) {
             sql += " LOWER( ? ) ";
           } else {
             sql += " ? ";
           }
 
-          if ((i._args[2] as bool)) {
-            i._args[1] = (i._args[1] as String).toLowerCase();
+          String fieldValue = i._args[1] as String;
+          if (isIgnoreCase) {
+            fieldValue = fieldValue.toLowerCase();
           }
 
-          parameters.add(field.toColumnType(i._args[1]));
+          parameters.add(field.toColumnType(fieldValue));
 
-          opbrk = clbrk = "";
+          opbrk = "";
+          clbrk = "";
           conj = " AND ";
           not = false;
 
@@ -132,7 +134,10 @@ class Query<T> with IterableMixin<T> {
           conj = " AND ";
           not = false;
           break;
-        case QueryOperation.nop:
+        case QueryOperation.and:
+          // and gets added automatically
+          break;
+        case QueryOperation.noOperation:
           // ignore
           break;
         default:
@@ -166,38 +171,39 @@ class Query<T> with IterableMixin<T> {
   }
 
   // public methods
-  Query<T> not(List<Object> args) {
-    return _setOp(QueryOperation.not, args);
+  Query<T> not() {
+    return _setOp(QueryOperation.not, []);
   }
 
-  Query<T> and([List<Object>? args]) {
-    return _setOp(QueryOperation.and, args ?? []);
+  Query<T> and() {
+    return _setOp(QueryOperation.and, []);
   }
 
-  Query<T> or([List<Object>? args]) {
-    return _setOp(QueryOperation.or, args ?? []);
+  Query<T> or() {
+    return _setOp(QueryOperation.or, []);
   }
 
-  Query<T> beginGroup(List<Object> args) {
-    return _setOp(QueryOperation.beginGroup, args);
+  Query<T> beginGroup() {
+    return _setOp(QueryOperation.beginGroup, []);
   }
 
-  Query<T> endGroup(List<Object> args) {
-    return _setOp(QueryOperation.endGroup, args);
+  Query<T> endGroup() {
+    return _setOp(QueryOperation.endGroup, []);
   }
 
-  Query<T> equals(String field, Object value, {bool ignoreCase = false}) {
+  Query<T> equals(String field, Object value, [bool ignoreCase = false]) {
     return _setOp(QueryOperation.equals, [field, value, ignoreCase]);
   }
 
-  Query<T> like(String field, Object value, [bool ignoreCase = false]) {
-    return _setOp(QueryOperation.like, [field, value, ignoreCase]);
+  Query<T> like(String field, Object value) {
+    // third param is true, as it always ignores case in sqlite
+    return _setOp(QueryOperation.like, [field, value, true]);
   }
 
   Query<T> isIn(String field, List<Object> values) {
     var argList = List<Object>.from(values);
     argList.insert(0, field);
-    return _setOp(QueryOperation.like, argList);
+    return _setOp(QueryOperation.isIn, argList);
   }
 
   Query<T> greaterThan(String field, Object value) {

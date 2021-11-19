@@ -1,5 +1,5 @@
 enum QueryOperation {
-  nop,
+  noOperation,
   not,
   and,
   or,
@@ -7,7 +7,7 @@ enum QueryOperation {
   endGroup,
   equals,
   like,
-  // bc in is a keyword
+  // isIn bc in is a keyword
   isIn,
   greaterThan,
   lessThan,

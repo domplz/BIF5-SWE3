@@ -6,7 +6,7 @@ import 'package:orm_framework/src/annotations/primarykey_annotation.dart';
 import 'gender.dart';
 
 @EntityAnnotation(tableName: "PERSONS")
-class Person {
+abstract class Person {
   static int _instanceCounter = 0;
   @IgnoreAnnotation()
   late int instanceNumber = _instanceCounter++;

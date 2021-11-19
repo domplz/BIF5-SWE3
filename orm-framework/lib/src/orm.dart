@@ -197,7 +197,7 @@ class Orm {
   static List<Type> getChildTypes(Type type) {
     List<Type> types = [];
     for (var item in _entities.keys) {
-      if (!reflectClass(type).isAbstract && reflectType(item).isAssignableTo(reflectType(type))) {
+      if (!reflectClass(item).isAbstract && reflectType(item).isAssignableTo(reflectType(type))) {
         types.add(item);
       }
     }
