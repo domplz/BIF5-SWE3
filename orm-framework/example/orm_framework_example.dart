@@ -1,6 +1,7 @@
 import 'package:orm_framework/orm_framework.dart';
 import 'package:orm_framework/src/default_cache.dart';
-import 'package:orm_framework/src/tracking_cache.dart';
+import 'package:orm_framework/src/orm_models/db_locking.dart';
+import 'package:orm_framework/src/orm_models/object_locked_exception.dart';
 
 import 'package:sqlite3/open.dart';
 import 'package:sqlite3/sqlite3.dart';
@@ -32,6 +33,7 @@ void main() {
   demo.withCache();
   demo.withQuery();
   demo.withSql();
+  demo.withLocking();
 
   Orm.database.dispose();
 }
@@ -183,6 +185,28 @@ class OrmDemo {
 
     String sqlWithWhere = "SELECT * FROM STUDENTS WHERE FIRSTNAME = 'Alice'";
     var starFromStudentsWhereAlice = Orm.fromSql<Student>(sqlWithWhere);
+  }
+
+  void withLocking() {
+    String sessionKey = Uuid().v4().toString();
+    Orm.locking = DbLocking(sessionKeyParam: sessionKey);
+
+    Teacher t = Orm.get<Teacher>("t.0");
+    Orm.lock(t);
+    // lock again
+    Orm.lock(t);
+
+    // lock with another session
+    Orm.locking = DbLocking();
+    try {
+      Orm.lock(t);
+    } on ObjectLockedException catch (e) {
+      // actually throws
+      String error = e.toString();
+    }
+
+    Orm.locking = DbLocking(sessionKeyParam: sessionKey);
+    Orm.release(t);
   }
 
   void _showInstances() {

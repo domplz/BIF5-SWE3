@@ -5,12 +5,16 @@ import 'package:orm_framework/src/orm_models/orm_entity.dart';
 import 'package:orm_framework/src/orm_models/query.dart';
 import 'package:sqlite3/sqlite3.dart';
 
+import 'orm_models/locking.dart';
+
 class Orm {
   static final Map<Type, OrmEntity> _entities = <Type, OrmEntity>{};
 
   static late Database database;
 
   static Cache? cache;
+
+  static Locking? locking;
 
   static OrmEntity getEntity(Object object) {
     // get type from object
@@ -28,6 +32,18 @@ class Orm {
 
     // ! is used, bc it was just added above
     return _entities[type]!;
+  }
+
+  static lock(Object object) {
+    if (locking != null) {
+      locking!.lock(object);
+    }
+  }
+
+  static release(Object object) {
+    if (locking != null) {
+      locking!.release(object);
+    }
   }
 
   static save(Object object) {
