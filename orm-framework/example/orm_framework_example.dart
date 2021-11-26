@@ -31,6 +31,7 @@ void main() {
   demo.createAndDelete();
   demo.withCache();
   demo.withQuery();
+  demo.withSql();
 
   Orm.database.dispose();
 }
@@ -173,8 +174,15 @@ class OrmDemo {
         .toList();
 
     var allPersons = Orm.from<Person>().toList();
+  }
 
-    String wtfman = "wtf";
+  void withSql() {
+    String sql = "SELECT * FROM TEACHERS";
+
+    var starFromTeacher = Orm.fromSql<Teacher>(sql);
+
+    String sqlWithWhere = "SELECT * FROM STUDENTS WHERE FIRSTNAME = 'Alice'";
+    var starFromStudentsWhereAlice = Orm.fromSql<Student>(sqlWithWhere);
   }
 
   void _showInstances() {

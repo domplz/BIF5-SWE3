@@ -108,6 +108,10 @@ class Orm {
     return Query<T>(null);
   }
 
+  static List<T> fromSql<T>(String sql, [List<String>? parameters]) {
+    return getListFromSql(T, sql, parameters ?? []);
+  }
+
   static List<Object> createAllObjects(Type type) {
     String commandText = Orm.getEntity(type).getSql();
     ResultSet resultSet = database.select(commandText);
