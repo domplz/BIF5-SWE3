@@ -8,6 +8,7 @@ import 'package:sqlite3/sqlite3.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:mirrors';
 
 import 'models/class.dart';
 import 'models/course.dart';
@@ -30,10 +31,10 @@ void main() {
   demo.showWithForeignKeyList();
   demo.showWithMToN();
   demo.createAndDelete();
-  demo.withCache();
-  demo.withQuery();
-  demo.withSql();
-  demo.withLocking();
+  // demo.withCache();
+  // demo.withQuery();
+  // demo.withSql();
+  // demo.withLocking();
 
   Orm.database.dispose();
 }
@@ -46,24 +47,42 @@ DynamicLibrary _openOnWindows() {
 
 class OrmDemo {
   showInsert() {
+    print("\nSHOWING INSERT TEACHER:");
+    printSeperator();
+
     Teacher t = Teacher();
     t.hireDate = DateTime(2010, 11, 1);
     t.salary = 3000;
     t.birthDate = DateTime(2987, 1, 14);
-    t.firstName = "Seppi";
+    t.firstName = "John";
     t.gender = Gender.male;
     t.id = "t.1";
-    t.name = "Forcher";
+    t.name = "Doe";
 
     Orm.save(t);
+
+    print("Inserted: ");
+    printInstance(t, ["id", "firstName", "name"]);
   }
 
   showSelect() {
+    print("\nSHOWING SELECT TEACHER:");
+    printSeperator();
+
+    print("SELECT ALL TEACHERS:");
     var teachers = Orm.getAll<Teacher>();
-    var teacherForId = Orm.get<Teacher>(teachers[0].id);
+    printInstanceList(teachers, ["id", "firstName", "name"]);
+
+    String teacherId = teachers[0].id;
+    print("SELECT TEACHER FOR ID $teacherId:");
+    var teacherForId = Orm.get<Teacher>(teacherId);
+    printInstance(teacherForId, ["id", "firstName", "name"]);
   }
 
   showWithForeignKey() {
+    print("\nSHOWING INSERT WITH FOREIGN KEY:");
+    printSeperator();
+
     Teacher t = Orm.get<Teacher>("t.0");
 
     Class c = Class();
@@ -74,9 +93,14 @@ class OrmDemo {
     Orm.save(c);
 
     Class c2 = Orm.get<Class>("c.0");
+    print("INSERTED CLASS:");
+    printInstance(c2, ["id", "name", "teacher"]);
   }
 
   showWithForeignKeyList() {
+    print("\nSHOWING INSERT WITH FOREIGN KEY LIST:");
+    printSeperator();
+
     Teacher t = Orm.get<Teacher>("t.0");
 
     // add another class
@@ -88,9 +112,18 @@ class OrmDemo {
     Orm.save(c);
 
     t = Orm.get<Teacher>("t.0");
+    print("INSERTED CLASS:");
+    printInstance(c, ["id", "name", "teacher"]);
+
+    Teacher fkTeacher = Orm.get<Teacher>(c.teacher.id);
+    print("FK TEACHER: ");
+    printInstance(fkTeacher, ["id", "firstName", "name", "classes"]);
   }
 
   showWithMToN() {
+    print("\nSHOWING INSERT WITH M TO N:");
+    printSeperator();
+
     Course course = Course();
     course.id = "x.0";
     course.name = "Demons 1";
@@ -123,21 +156,38 @@ class OrmDemo {
     Orm.save(course);
 
     Course courseWithStudents = Orm.get<Course>("x.0");
+    print("COURSE WITH STUDENTS: ");
+    printInstance(courseWithStudents, ["id", "name", "students"]);
   }
 
   void createAndDelete() {
+    print("\nSHOWING CREATE AND DELETE");
+    printSeperator();
+
+    String teacherId = Uuid().v4().toString();
     Teacher t = Teacher();
     t.hireDate = DateTime(2010, 11, 1);
     t.salary = 3000;
     t.birthDate = DateTime(2987, 1, 14);
-    t.firstName = "Seppi";
+    t.firstName = "John";
     t.gender = Gender.male;
-    t.id = Uuid().v4().toString();
-    t.name = "Forcher";
+    t.id = teacherId;
+    t.name = "Doe";
 
     Orm.save(t);
 
+    var createdTeacher = Orm.get<Teacher>(teacherId);
+    print("CREATED TEACHER:");
+    printInstance(createdTeacher, ["id", "firstName", "name", "classes"]);
+
+    print("DELETE TEACHER:");
     Orm.delete(t);
+    try {
+      print("TRY TO LOAD DELETED TEACHER:");
+      Orm.get<Teacher>(teacherId);
+    } catch (e) {
+      print("Could not get teacher with id $teacherId. Exception: " + e.toString());
+    }
   }
 
   void withCache() {
@@ -214,5 +264,27 @@ class OrmDemo {
       Teacher t = Orm.get<Teacher>("t.0");
       print("Object [ ${t.id} ] instance no. ${t.instanceNumber.toString()}");
     }
+  }
+
+  void printInstance(Object instance, List<String> fieldsToPrint) {
+    print("Instance: ${instance.runtimeType}");
+    for (var item in fieldsToPrint) {
+      InstanceMirror instanceMirror = reflect(instance);
+      print("$item: ${instanceMirror.getField(Symbol(item)).reflectee}");
+    }
+  }
+
+  void printInstanceList(List<Object> instances, List<String> fieldsToPrint) {
+    int index = 0;
+    for (var item in instances) {
+      print("Element $index:");
+      printInstance(item, fieldsToPrint);
+      printSeperator();
+      index++;
+    }
+  }
+
+  void printSeperator() {
+    print("------------------------------------------");
   }
 }
