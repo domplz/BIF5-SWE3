@@ -31,10 +31,10 @@ void main() {
   demo.showWithForeignKeyList();
   demo.showWithMToN();
   demo.createAndDelete();
-  // demo.withCache();
-  // demo.withQuery();
-  // demo.withSql();
-  // demo.withLocking();
+  demo.withCache();
+  demo.withQuery();
+  demo.withSql();
+  demo.withLocking();
 
   Orm.database.dispose();
 }
@@ -191,25 +191,51 @@ class OrmDemo {
   }
 
   void withCache() {
-    _showInstances();
+    print("\nSHOWING CACHE FUNCTIONALITY");
+    printSeperator();
+
+    print("INSTANCES WITHOUT CACHE:");
+    _showTeacherInstances();
 
     Orm.cache = DefaultCache();
 
-    _showInstances();
+    print("INSTANCES WITH CACHE:");
+    _showTeacherInstances();
   }
 
   void withQuery() {
+    print("\nSHOWING QUERYING FUNCTIONALITY");
+    printSeperator();
+
     var aliceWithSurname =
         Orm.from<Student>().equals("firstname", "Alice", false).and().equals("name", "aalo", true).toList();
+    print('Orm.from<Student>().equals("firstname", "Alice", false).and().equals("name", "aalo", true).toList();');
+    printInstanceList(aliceWithSurname, ["id", "firstName", "name"]);
 
     var studentsWithGradGt1 = Orm.from<Student>().greaterThan("grade", 1).toList();
+    print('Orm.from<Student>().greaterThan("grade", 1).toList();');
+    printInstanceList(studentsWithGradGt1, ["id", "firstName", "name"]);
+
     var studentsWithGradLt2 = Orm.from<Student>().lessThan("grade", 2).toList();
+    print('Orm.from<Student>().lessThan("grade", 2).toList();');
+    printInstanceList(studentsWithGradLt2, ["id", "firstName", "name"]);
+
     var studentsWithGradGt1AndFirstNameAl =
         Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%").toList();
+    print('Orm.from<Student>().greaterThan("grade", 1).or().like("firstName", "al%").toList();');
+    printInstanceList(studentsWithGradGt1AndFirstNameAl, ["id", "firstName", "name"]);
 
     var personsNotAlice = Orm.from<Person>().not().equals("firstName", "alice", true).toList();
+    print('Orm.from<Person>().not().equals("firstName", "alice", true).toList();');
+    printInstanceList(personsNotAlice, ["id", "firstName", "name"]);
+
     var personInAliceOrSeppi = Orm.from<Person>().isIn("firstname", ["Alice", "Seppi"]).toList();
+    print('Orm.from<Person>().isIn("firstname", ["Alice", "Seppi"]).toList();');
+    printInstanceList(personInAliceOrSeppi, ["id", "firstName", "name"]);
+
     var personNotInAliceOrSeppi = Orm.from<Person>().not().isIn("firstname", ["Alice", "Seppi"]).toList();
+    print('Orm.from<Person>().not().isIn("firstname", ["Alice", "Seppi"]).toList();');
+    printInstanceList(personNotInAliceOrSeppi, ["id", "firstName", "name"]);
 
     var useGroupReturnAliceAndBernard = Orm.from<Person>()
         .beginGroup()
@@ -224,42 +250,63 @@ class OrmDemo {
         .equals("name", "Bumblebee", true)
         .endGroup()
         .toList();
+    print(
+        'Orm.from<Person>().beginGroup().equals("firstname", "Alice", false).and().equals("name", "aalo", true).endGroup().or().beginGroup().equals("firstname", "Bernard", false).and().equals("name", "Bumblebee", true).endGroup().toList();');
+    printInstanceList(useGroupReturnAliceAndBernard, ["id", "firstName", "name"]);
 
     var allPersons = Orm.from<Person>().toList();
+    print('Orm.from<Person>().toList();');
+    printInstanceList(allPersons, ["id", "firstName", "name"]);
   }
 
   void withSql() {
-    String sql = "SELECT * FROM TEACHERS";
+    print("\nSHOWING SELECT USING SQL:");
+    printSeperator();
 
+    String sql = "SELECT * FROM TEACHERS";
     var starFromTeacher = Orm.fromSql<Teacher>(sql);
+    print(sql);
+    printInstanceList(starFromTeacher, ["id", "firstName", "name"]);
 
     String sqlWithWhere = "SELECT * FROM STUDENTS WHERE FIRSTNAME = 'Alice'";
     var starFromStudentsWhereAlice = Orm.fromSql<Student>(sqlWithWhere);
+    print(sqlWithWhere);
+    printInstanceList(starFromStudentsWhereAlice, ["id", "firstName", "name"]);
   }
 
   void withLocking() {
+    print("\nSHOWING LOCKING FUNCTIONALITY:");
+    printSeperator();
+
     String sessionKey = Uuid().v4().toString();
     Orm.locking = DbLocking(sessionKeyParam: sessionKey);
 
     Teacher t = Orm.get<Teacher>("t.0");
+    print("LOCK TEACHER:");
     Orm.lock(t);
     // lock again
+    print("LOCK TEACHER AGAIN:");
     Orm.lock(t);
 
     // lock with another session
+    print("CREATE DIFFERENT LOCKING SESSION:");
     Orm.locking = DbLocking();
     try {
+      print("TRY LOCKING WITH DIFFERENT SESSION:");
       Orm.lock(t);
     } on ObjectLockedException catch (e) {
       // actually throws
-      String error = e.toString();
+      print("COULD NOT LOCK INSTANCE! Exception: " + e.toString());
     }
 
+    print("CREATE LOCKING SESSION WITH OLD SESSION KEY:");
     Orm.locking = DbLocking(sessionKeyParam: sessionKey);
+
+    print("RELEASE LOCK:");
     Orm.release(t);
   }
 
-  void _showInstances() {
+  void _showTeacherInstances() {
     for (int i = 0; i < 7; i++) {
       Teacher t = Orm.get<Teacher>("t.0");
       print("Object [ ${t.id} ] instance no. ${t.instanceNumber.toString()}");
