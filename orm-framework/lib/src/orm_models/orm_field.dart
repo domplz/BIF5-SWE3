@@ -6,7 +6,8 @@ import 'package:sqlite3/sqlite3.dart';
 import '../../orm_framework.dart';
 
 class OrmField {
-  OrmField(this.entity, this.member, this.type, this.columnName, this.columnType, this.isPrimaryKey, this.isForeignKey, this.isNullable);
+  OrmField(this.entity, this.member, this.type, this.columnName, this.columnType, this.isPrimaryKey, this.isForeignKey,
+      this.isNullable);
 
   OrmEntity entity;
   VariableMirror member;
@@ -105,7 +106,7 @@ class OrmField {
               element.isConst &&
               MirrorSystem.getName(element.simpleName) != "values" &&
               MirrorSystem.getName(element.simpleName) != MirrorSystem.getName(typeMirror.simpleName)) {
-            enumValues.add("${MirrorSystem.getName(typeMirror.simpleName)}.${MirrorSystem.getName(element.simpleName)}");
+            enumValues.add(MirrorSystem.getName(element.simpleName));
           }
         }
 
@@ -158,7 +159,8 @@ class OrmField {
           columnName +
           " = ? )";
     } else {
-      commandText = Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql() + " WHERE " + columnName + " = ?";
+      commandText =
+          Orm.getEntity(reflectType(type).typeArguments.first.reflectedType).getSql() + " WHERE " + columnName + " = ?";
     }
 
     List<String> parameters = <String>[];
@@ -168,8 +170,8 @@ class OrmField {
 
     for (var result in resultSet) {
       // check if element is in cache
-      var element =
-          Orm.searchCache(reflectType(type).typeArguments.first.reflectedType, result[entity.primaryKey.columnName.toUpperCase()], localCache);
+      var element = Orm.searchCache(reflectType(type).typeArguments.first.reflectedType,
+          result[entity.primaryKey.columnName.toUpperCase()], localCache);
 
       // if element is null, load it from db
       element ??= Orm.createObjectFromRow(reflectType(type).typeArguments.first.reflectedType, result, localCache);
@@ -219,7 +221,8 @@ class OrmField {
         for (Object element in getValue(object) as Iterable) {
           remoteField.setValue(element, object);
 
-          String command = "UPDATE ${innerEntity.tableName} SET $columnName = ? WHERE ${innerEntity.primaryKey.columnName} = ?";
+          String command =
+              "UPDATE ${innerEntity.tableName} SET $columnName = ? WHERE ${innerEntity.primaryKey.columnName} = ?";
           List<String> parameters = <String>[
             primaryKey.toString(),
             innerEntity.primaryKey.toColumnType(innerEntity.primaryKey.getValue(element)),

@@ -77,7 +77,7 @@ void main() {
     test('With enums as STRING', () {
       var resultMap = <String, dynamic>{
         "ID": "NiceIdMan",
-        "ENUMVALUE": TestEnum.valueTwo.toString(),
+        "ENUMVALUE": "valueTwo",
       };
 
       var object = Orm.createObjectFromRow(TestClassWithEnumAsString, resultMap, null) as TestClassWithEnumAsString;
