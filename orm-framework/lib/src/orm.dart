@@ -172,8 +172,12 @@ class Orm {
   /// Framework internal. Not intended for enduser usage.
   static Object createObjectFromRow(Type type, Map<String, dynamic> row, List<Object>? localCache) {
     var entity = Orm.getEntity(type);
-    Object? cacheObject = searchCache(
-        type, entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache), localCache);
+    var primaryKeyValue = entity.primaryKey.toFieldType(row[entity.primaryKey.columnName.toUpperCase()], localCache);
+
+    Object? cacheObject;
+    if (primaryKeyValue != null) {
+      cacheObject = searchCache(type, primaryKeyValue, localCache);
+    }
 
     late InstanceMirror instance;
     if (cacheObject != null) {

@@ -6,22 +6,47 @@ import 'package:sqlite3/sqlite3.dart';
 import '../../orm_framework.dart';
 
 class OrmField {
+  /// Creates a new instance of [OrmField].
   OrmField(this.entity, this.member, this.type, this.columnName, this.columnType, this.isPrimaryKey, this.isForeignKey,
       this.isNullable);
 
+  /// Gets or sets the entity it belongs to.
   OrmEntity entity;
+
+  /// Gets or sets the the member.
   VariableMirror member;
+
+  /// Gets or sets the type.
   Type type;
+
+  /// Gets or sets the column name.
   String columnName;
+
+  /// Gets or sets the column type.
   Type columnType;
+
+  /// Gets or sets whether it is a primary key.
   bool isPrimaryKey;
+
+  /// Gets or sets whether it is a foreign key.
   bool isForeignKey;
+
+  /// Gets or sets whether it is nullable.
   bool isNullable;
+
+  /// Gets or sets the assignment table.
   String? assignmentTable;
+
+  /// Gets or sets the remote column name.
   String? remoteColumnName;
+
+  /// Gets or sets whether it is many to many
   bool isManyToMany = false;
+
+  /// Gets or sets whether it is an external field.
   bool isExternal = false;
 
+  /// Converts a [value] to the coresponding columntype for the database.
   // is needed as string for parameter bindings
   // parameters in sqlite3 library can only be strings for some Reason
   String toColumnType(Object? value) {
@@ -53,7 +78,9 @@ class OrmField {
     return value.toString();
   }
 
-  toFieldType(Object? value, List<Object>? localCache) {
+  /// Converts a [value] to the coresponding fieldType.
+  /// Tries to find the value in [localCache].
+  Object? toFieldType(Object? value, List<Object>? localCache) {
     if (isForeignKey) {
       if (value != null) {
         return Orm.createObject(type, value, localCache);
@@ -131,6 +158,7 @@ class OrmField {
     return value;
   }
 
+  /// Gets value from object via reflection.
   Object? getValue(Object object) {
     if (member is VariableMirror) {
       InstanceMirror instanceMirror = reflect(object);
@@ -139,6 +167,7 @@ class OrmField {
     throw Exception("Other types than VariableMirrors are not supportet for getValue!");
   }
 
+  /// Sets a value to object via reflection.
   void setValue(Object object, Object value) {
     if (member is VariableMirror) {
       InstanceMirror instanceMirror = reflect(object);
@@ -147,6 +176,7 @@ class OrmField {
     throw Exception("Other types than VariableMirrors are not supportet for setValue!");
   }
 
+  /// Fills a foreign key list.
   Object fill(Object list, Object obj, List<Object>? localCache) {
     String commandText = "";
     if (isManyToMany) {
@@ -182,6 +212,7 @@ class OrmField {
     return list;
   }
 
+  /// Updates the references of external fields.
   void updateReferences(Object object) {
     if (!isExternal) {
       throw Exception("Update references can only be called on external fields!");

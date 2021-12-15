@@ -7,7 +7,9 @@ import 'package:orm_framework/src/orm_models/orm_field.dart';
 import 'dart:mirrors';
 import 'package:collection/collection.dart';
 
+/// The framework's OrmEntity implementation
 class OrmEntity {
+  /// Creates a new instance of [OrmEntity] for [type].
   OrmEntity(Type type) {
     member = reflectClass(type);
 
@@ -68,24 +70,36 @@ class OrmEntity {
     _externals = fields.where((element) => element.isExternal).toList();
   }
 
+  /// Gets or sets the member.
   late ClassMirror member;
+
+  /// Gets or sets the table name.
   late String tableName;
+
+  /// Gets or sets the fields.
   late List<OrmField> fields;
+
+  /// Gets or sets the primary key field.
   late OrmField primaryKey;
   late List<OrmField> _internals;
   late List<OrmField> _externals;
 
+  /// Gets the internal fields.
   List<OrmField> get internals => _internals;
+
+  /// Gets the external fields.
   List<OrmField> get externals => _externals;
 
-  String getSql({String prefix = ""}) {
+  /// Gets the SELECT-SQL of the entity.
+  /// [columnPrefix] for adding a prefix to the columnname
+  String getSql({String columnPrefix = ""}) {
     String selectStatement = "SELECT ";
     for (int i = 0; i < internals.length; i++) {
       // add ", " in front of the value after the first
       if (i > 0) {
         selectStatement += ", ";
       }
-      selectStatement += prefix.trim() + internals[i].columnName;
+      selectStatement += columnPrefix.trim() + internals[i].columnName;
     }
 
     selectStatement += " FROM " + tableName;
@@ -93,6 +107,7 @@ class OrmEntity {
     return selectStatement;
   }
 
+  /// Gets the field for columnName.
   OrmField getFieldForColumn(String columnName) {
     for (OrmField internalField in internals) {
       if (columnName.toLowerCase() == internalField.columnName.toLowerCase()) {
@@ -102,6 +117,7 @@ class OrmEntity {
     throw Exception(columnName + "-field not found!");
   }
 
+  /// Gets the field by its name.
   OrmField getFieldByName(String name) {
     for (OrmField internalField in fields) {
       if (MirrorSystem.getName(internalField.member.simpleName).toLowerCase() == name.toLowerCase()) {
