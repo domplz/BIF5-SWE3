@@ -13,15 +13,15 @@ and the Flutter guide for
 
 Simple Object Relational Mapper (ORM) implemented for BIF-5 SWE3 using Dart and SQLite.
 
-## Features
+# Features
 
-# Selecting entities
+## Selecting entities
 ```dart
     var testEntities = Orm.getAll<TestEntity>();
     var testEntityById = Orm.get<TestEntity>("idValue");
 ```
 
-# Saving and creating entities
+## Saving and creating entities
 
 ```dart
     testEntityById.value1 = "updated";
@@ -31,13 +31,13 @@ Simple Object Relational Mapper (ORM) implemented for BIF-5 SWE3 using Dart and 
     Orm.save(newEntity);
 ```
 
-# Deleting entities
+## Deleting entities
 
 ```dart
     Orm.delete(newEntity);
 ```
 
-# Fluid Querying Language
+## Fluid Querying Language
 
 The framework supports a fluid querying language.
 
@@ -63,14 +63,14 @@ The framework supports a fluid querying language.
 
 You can find more examples in the `/example` folder!
 
-# Select by custom query
+## Select by custom query
 
 ```dart
     String sql = "SELECT * FROM TESTENTITIES WHERE FIRSTCOLUMN = 'value1'";
     List<TestEntity> selectBySql = Orm.fromSql<TestEntity>(sql);
 ```
 
-# Caching
+## Caching
 
 Provide a ```Cache``` instance to support caching in your application.
 There are two caching implementations provided by default:
@@ -86,7 +86,7 @@ There are two caching implementations provided by default:
     Orm.cache = TrackingCache();
 ```
 
-# Locking
+## Locking
 
 Provide a ```Locking``` instance to support Locking in your application.
 By default there is a DbLocking implementation included in the framework
@@ -103,7 +103,9 @@ By default there is a DbLocking implementation included in the framework
     Orm.lock(testEntityById);
 ```
 
-## Getting started
+# Getting started
+
+Install dart: [Get the Dart SDK](https://dart.dev/get-dart)
 
 Import the framework in your project
 
@@ -135,25 +137,27 @@ Dispose the database after usage.
     Orm.database.dispose();
 ```
 
-## Usage
+# Usage
 
 For detailed usage, view the `/example` folder!
 
-## Run example code
+# Run example code
+
+Install dart: [Get the Dart SDK](https://dart.dev/get-dart)
 
 Type the following commands in your terminal:
 
-# Change to the "orm-framework"-folder
+## Change to the "orm-framework"-folder
 ```
     cd .\orm-framework\
 ```
 
-# Install packages
+## Install packages
 ```
     dart pub get
 ```
 
-# Run "orm_framework_example.dart" file
+## Run "orm_framework_example.dart" file
 ```
     dart run .\example\orm_framework_example.dart
 ```
