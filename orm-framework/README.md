@@ -11,12 +11,64 @@ and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
 
-TODO: Put a short description of the package here that helps potential users
-know whether this package might be useful for them.
+Simple Object Relational Mapper (ORM) implemented for BIF-5 SWE3 using Dart.
 
 ## Features
 
-TODO: List what your package can do. Maybe include images, gifs, or videos.
+# Selecting entities
+```dart
+    var testEntities = Orm.getAll<TestEntity>();
+    var testEntityById = Orm.get<TestEntity>("idValue");
+```
+
+# Saving and creating entities
+
+```dart
+    testEntityById.value1 = "updated";
+    Orm.save(testEntityById);
+
+    var newEntity = TestEntity();
+    Orm.save(newEntity);
+```
+
+# Deleting entities
+
+```dart
+    Orm.delete(newEntity);
+```
+
+# Caching
+
+Provide a ```Cache``` instance to support caching in your application.
+There are two caching implementations provided by default:
+- DefaultCache (no change tracking)
+- TrackingCache (supports change tracking)
+
+```dart
+    // use default cache without change tracking
+    Orm.cache = DefaultCache();
+
+    // OR
+    // use TrackingCache with change tracking
+    Orm.cache = TrackingCache();
+```
+
+# Locking
+
+Provide a ```Locking``` instance to support Locking in your application.
+By default there is a DbLocking implementation included in the framework
+
+```dart
+    // enable database locking
+    Orm.locking = DbLocking(sessionKeyParam: "SessionKeyForLocking", lockTableNameParam: "lockingTableName");
+
+    // lock object
+    var testEntityById = Orm.get<TestEntity>("idValue");
+    Orm.lock(testEntityById);
+
+    // release object again
+    Orm.lock(testEntityById);
+```
 
 ## Getting started
 
