@@ -1,5 +1,5 @@
 import 'package:orm_framework/orm_framework.dart';
-import 'package:orm_framework/src/caches/cache.dart';
+import 'package:orm_framework/src/cache/cache.dart';
 
 /// Simple [Cache] implementation, without change tracking.
 class DefaultCache implements Cache {

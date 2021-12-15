@@ -1,7 +1,7 @@
-import 'package:orm_framework/src/caches/default_cache.dart';
+import 'package:orm_framework/src/cache/default_cache.dart';
+import 'package:orm_framework/src/locking/db_locking.dart';
+import 'package:orm_framework/src/locking/object_locked_exception.dart';
 import 'package:orm_framework/src/orm.dart';
-import 'package:orm_framework/src/orm_models/db_locking.dart';
-import 'package:orm_framework/src/orm_models/object_locked_exception.dart';
 import 'package:uuid/uuid.dart';
 
 import '../models/class.dart';

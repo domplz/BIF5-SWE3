@@ -1,6 +1,6 @@
+import 'package:orm_framework/src/locking/locking.dart';
+import 'package:orm_framework/src/locking/object_locked_exception.dart';
 import 'package:orm_framework/src/orm.dart';
-import 'package:orm_framework/src/orm_models/locking.dart';
-import 'package:orm_framework/src/orm_models/object_locked_exception.dart';
 import 'package:uuid/uuid.dart';
 
 class DbLocking implements Locking {
