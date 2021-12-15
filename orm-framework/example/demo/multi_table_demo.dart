@@ -1,4 +1,4 @@
-import 'package:orm_framework/src/default_cache.dart';
+import 'package:orm_framework/caches/default_cache.dart';
 import 'package:orm_framework/src/orm.dart';
 import 'package:orm_framework/src/orm_models/db_locking.dart';
 import 'package:orm_framework/src/orm_models/object_locked_exception.dart';
