@@ -6,6 +6,9 @@ import 'package:orm_framework/src/orm_models/orm_field.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
+/// TrackingCache implementation
+/// Extends the [DefaultCache]'s functionality by adding change tracking
+/// Changes are tracked by computing a hash for each value in cache.
 class TrackingCache extends DefaultCache implements Cache {
   final Map<Type, Map<Object, String>> _hashes = <Type, Map<Object, String>>{};
 
@@ -53,6 +56,8 @@ class TrackingCache extends DefaultCache implements Cache {
     return sha256.convert(bytes).toString();
   }
 
+  /// Puts [object] into cache and stores its hash.
+  /// If primary key value of [object] is null, it will NOT be added to cache!
   @override
   void put(Object object) {
     Object? pkValue = Orm.getEntity(object).primaryKey.getValue(object);
@@ -64,6 +69,7 @@ class TrackingCache extends DefaultCache implements Cache {
     }
   }
 
+  /// Removes [object] from cache and removes its hash.
   @override
   void remove(Object object) {
     super.remove(object);
@@ -72,6 +78,8 @@ class TrackingCache extends DefaultCache implements Cache {
     hash.remove(Orm.getEntity(object).primaryKey.getValue(object));
   }
 
+  /// Checks, if [object] has changed.
+  /// Compares the hash of [object]'s current state and compares it with the stored hash.
   @override
   bool hasChanged(Object object) {
     var hash = _getHash(object.runtimeType);
