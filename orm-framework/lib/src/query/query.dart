@@ -4,7 +4,7 @@ import 'dart:mirrors';
 import 'package:orm_framework/orm_framework.dart';
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
 import 'package:orm_framework/src/orm_models/orm_field.dart';
-import 'package:orm_framework/src/orm_models/query_operation.dart';
+import 'package:orm_framework/src/query/query_operation.dart';
 
 class Query<T> with IterableMixin<T> {
   final Query<T>? _previous;

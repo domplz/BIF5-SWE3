@@ -2,7 +2,7 @@ import 'dart:mirrors';
 import 'package:orm_framework/src/cache/cache.dart';
 import 'package:orm_framework/src/locking/locking.dart';
 import 'package:orm_framework/src/orm_models/orm_entity.dart';
-import 'package:orm_framework/src/orm_models/query.dart';
+import 'package:orm_framework/src/query/query.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 class Orm {
