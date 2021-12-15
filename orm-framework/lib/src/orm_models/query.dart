@@ -173,46 +173,59 @@ class Query<T> with IterableMixin<T> {
     return Query<T>(this);
   }
 
-  // public methods
+  /// Negates the following query operation.
   Query<T> not() {
     return _setOp(QueryOperation.not, []);
   }
 
+  /// Links the following query operation with an AND.
   Query<T> and() {
     return _setOp(QueryOperation.and, []);
   }
 
+  /// Links the following query operation with an OR.
   Query<T> or() {
     return _setOp(QueryOperation.or, []);
   }
 
+  /// Begins the grouping for the following operations
+  /// Adds "(" to the SQL statement
   Query<T> beginGroup() {
     return _setOp(QueryOperation.beginGroup, []);
   }
 
+  /// Ends the grouping for the following operations
+  /// Adds ")" to the SQL statement
   Query<T> endGroup() {
     return _setOp(QueryOperation.endGroup, []);
   }
 
+  /// Checks, if the database value of field [field] is [value]
+  /// [ignoreCase] for case insensitive comparison
   Query<T> equals(String field, Object value, [bool ignoreCase = false]) {
     return _setOp(QueryOperation.equals, [field, value, ignoreCase]);
   }
 
+  /// Checks, if the database value of field [field] is like [value] (database operation LIKE %[value]%)
+  /// NOT case sensitive (SQLite default)
   Query<T> like(String field, Object value) {
     // third param is true, as it always ignores case in sqlite
     return _setOp(QueryOperation.like, [field, value, true]);
   }
 
+  /// Checks, if the value of [field] is one of the provided [values]
   Query<T> isIn(String field, List<Object> values) {
     var argList = List<Object>.from(values);
     argList.insert(0, field);
     return _setOp(QueryOperation.isIn, argList);
   }
 
+  /// Checks, if the value of [field] is greater than [value]
   Query<T> greaterThan(String field, Object value) {
     return _setOp(QueryOperation.greaterThan, [field, value]);
   }
 
+  /// Checks, if the value of [field] is less than [value]
   Query<T> lessThan(String field, Object value) {
     return _setOp(QueryOperation.lessThan, [field, value]);
   }

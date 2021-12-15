@@ -10,12 +10,17 @@ import 'orm_models/locking.dart';
 class Orm {
   static final Map<Type, OrmEntity> _entities = <Type, OrmEntity>{};
 
+  /// gets or sets the SQLite database for the framework to use
   static late Database database;
 
+  /// gets or sets the cache implementation for the framework to use
   static Cache? cache;
 
+  /// gets or sets the locking implementation for the framework to use
   static Locking? locking;
 
+  /// Gets the [OrmEntity] from an instance or type.
+  /// Stores the retrieved entity internaly.
   static OrmEntity getEntity(Object object) {
     // get type from object
     Type type;
@@ -34,18 +39,22 @@ class Orm {
     return _entities[type]!;
   }
 
+  /// Locks the [object], if the locking property is provided to the framework
   static lock(Object object) {
     if (locking != null) {
       locking!.lock(object);
     }
   }
 
+  /// Releases the lock from the [object], if the locking property is provided to the framework
   static release(Object object) {
     if (locking != null) {
       locking!.release(object);
     }
   }
 
+  /// Saves or updates the [object]
+  /// If the cache property is provided to the framework, it checks, if the object has changed before updating.
   static save(Object object) {
     if (cache != null && !cache!.hasChanged(object)) {
       return;
@@ -94,10 +103,12 @@ class Orm {
     }
   }
 
+  /// Gets [T] from the database for the provided [primaryKey]
   static T get<T>(Object primaryKey) {
     return createObject(T, primaryKey, null) as T;
   }
 
+  /// Gets all [T] from the database.
   static List<T> getAll<T>() {
     var list = createAllObjects(T);
     List<T> typedList = <T>[];
@@ -108,6 +119,7 @@ class Orm {
     return typedList;
   }
 
+  /// Deletes the [object] from the database.
   static void delete(Object object) {
     OrmEntity entityToDelete = Orm.getEntity(object);
 
@@ -120,14 +132,17 @@ class Orm {
     }
   }
 
+  /// Gets [Query<T>] for [T]
   static Query<T> from<T>() {
     return Query<T>(null);
   }
 
+  /// Gets [T] for the provided [sql] and the provided [parameters]
   static List<T> fromSql<T>(String sql, [List<String>? parameters]) {
     return getListFromSql(T, sql, parameters ?? []);
   }
 
+  /// Framework internal. Not intended for enduser usage.
   static List<Object> createAllObjects(Type type) {
     String commandText = Orm.getEntity(type).getSql();
     ResultSet resultSet = database.select(commandText);
@@ -144,6 +159,7 @@ class Orm {
     return objects;
   }
 
+  /// Framework internal. Not intended for enduser usage.
   static Object createObject(Type t, Object primaryKey, List<Object>? localCache) {
     String commandText = Orm.getEntity(t).getSql() + " WHERE " + Orm.getEntity(t).primaryKey.columnName + " = ? ";
     ResultSet resultSet = database.select(commandText, [primaryKey]);
@@ -155,6 +171,7 @@ class Orm {
     return createObjectFromRow(t, resultSet.first, localCache);
   }
 
+  /// Framework internal. Not intended for enduser usage.
   static Object createObjectFromRow(Type type, Map<String, dynamic> row, List<Object>? localCache) {
     var entity = Orm.getEntity(type);
     Object? cacheObject = searchCache(
@@ -200,6 +217,7 @@ class Orm {
     return instance.reflectee;
   }
 
+  /// Framework internal. Not intended for enduser usage.
   static Object? searchCache(Type type, Object primaryKey, List<Object>? localCache) {
     if (cache != null && cache!.contains(type, primaryKey)) {
       return cache!.get(type, primaryKey);
@@ -214,6 +232,7 @@ class Orm {
     }
   }
 
+  /// Framework internal. Not intended for enduser usage.
   static List<Type> getChildTypes(Type type) {
     List<Type> types = [];
     for (var item in _entities.keys) {
@@ -225,11 +244,13 @@ class Orm {
     return types;
   }
 
+  /// Framework internal. Not intended for enduser usage.
   static List<T> getListFromSql<T>(Type type, String sql, List<String> parameters, [List<Object>? localCache]) {
     var results = database.select(sql, parameters);
     return _getListFromRow<T>(type, results, localCache);
   }
 
+  /// Framework internal. Not intended for enduser usage.
   static List<T> _getListFromRow<T>(Type type, ResultSet resultSet, [List<Object>? localCache]) {
     var list = <T>[];
     for (var item in resultSet) {
