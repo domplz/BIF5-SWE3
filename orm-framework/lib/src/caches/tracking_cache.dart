@@ -1,6 +1,6 @@
-import 'package:orm_framework/caches/cache.dart';
-import 'package:orm_framework/caches/default_cache.dart';
 import 'package:orm_framework/orm_framework.dart';
+import 'package:orm_framework/src/caches/cache.dart';
+import 'package:orm_framework/src/caches/default_cache.dart';
 import 'package:orm_framework/src/orm_models/orm_field.dart';
 
 import 'dart:convert';

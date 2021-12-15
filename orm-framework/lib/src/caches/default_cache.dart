@@ -1,5 +1,6 @@
-import 'package:orm_framework/caches/cache.dart';
 import 'package:orm_framework/orm_framework.dart';
+
+import 'cache.dart';
 
 class DefaultCache implements Cache {
   final Map<Type, Map<Object, Object>> _caches = <Type, Map<Object, Object>>{};
