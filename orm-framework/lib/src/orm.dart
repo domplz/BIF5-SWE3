@@ -140,29 +140,16 @@ class Orm {
     return getListFromSql(T, sql, parameters ?? []);
   }
 
-  /// Framework internal. Not intended for enduser usage.
-  static List<Object> createAllObjects(Type type) {
-    String commandText = Orm.getEntity(type).getSql();
-    ResultSet resultSet = database.select(commandText);
-
-    if (resultSet.isEmpty) {
-      throw Exception("The query did not return any rows. It returned an empty resultSet!");
-    }
-
-    List<Object> objects = <Object>[];
-    for (var element in resultSet) {
-      objects.add(createObjectFromRow(type, element, null));
-    }
-
-    return objects;
-  }
-
+  /// Drop table from database, if exists.
   static void ensureTableDeleted<T>() {
     OrmEntity entity = Orm.getEntity(T);
     String dropTableSql = "DROP TABLE IF EXISTS ${entity.tableName}";
     Orm.database.execute(dropTableSql);
   }
 
+  /// Create the table, if not already exists.
+  /// Entity has to contain a PrimaryKey!
+  /// Entity cannot have ForeignKeys!
   static void ensureTableCreated<T>() {
     OrmEntity entity = Orm.getEntity(T);
 
@@ -197,6 +184,23 @@ class Orm {
     String createSql = "CREATE TABLE IF NOT EXISTS ${entity.tableName} ( $createRowsSql )";
 
     Orm.database.execute(createSql);
+  }
+
+  /// Framework internal. Not intended for enduser usage.
+  static List<Object> createAllObjects(Type type) {
+    String commandText = Orm.getEntity(type).getSql();
+    ResultSet resultSet = database.select(commandText);
+
+    if (resultSet.isEmpty) {
+      throw Exception("The query did not return any rows. It returned an empty resultSet!");
+    }
+
+    List<Object> objects = <Object>[];
+    for (var element in resultSet) {
+      objects.add(createObjectFromRow(type, element, null));
+    }
+
+    return objects;
   }
 
   /// Framework internal. Not intended for enduser usage.

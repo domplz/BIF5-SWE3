@@ -72,7 +72,7 @@ You can find more examples in the `/example` folder!
 
 ## Caching
 
-Provide a ```Cache``` instance to support caching in your application.
+Provide a `Cache` instance to support caching in your application.
 There are two caching implementations provided by default:
 - DefaultCache (no change tracking)
 - TrackingCache (supports change tracking)
@@ -88,7 +88,7 @@ There are two caching implementations provided by default:
 
 ## Locking
 
-Provide a ```Locking``` instance to support Locking in your application.
+Provide a `Locking` instance to support Locking in your application.
 By default there is a DbLocking implementation included in the framework
 
 ```dart
@@ -102,6 +102,34 @@ By default there is a DbLocking implementation included in the framework
     // release object again
     Orm.lock(testEntityById);
 ```
+
+## Creating simple tables
+
+You can create simple tables using the framework's `ensureTableCreated<T>()` method.
+
+### Caution:
+- If tables already exist, they will not be modified or overwritten!
+- The entity must hava a primary key defined!
+- The `ensureTableCreated<T>()` method does not support creating tables with foreign keys!
+
+```dart
+    // create simple table in db
+    Orm.ensureTableCreated<SimpleEntity>();
+
+```
+## Deleting tables
+
+Tables can be deleted by using the frameworks `ensureTableDeleted<T>()` method.
+
+### Caution:
+- Deleting does not handle foreign keys or other constraints!
+
+```dart
+    // delete table
+    Orm.ensureTableDeleted<SimpleEntity>();
+
+```
+
 
 # Getting started
 
@@ -120,8 +148,7 @@ Locate the sqlite3.dll
 ```dart
     // locate the SQLite.dll
     DynamicLibrary _openOnWindows() {
-        final scriptDir = File(Platform.script.toFilePath()).parent.parent;
-        final libraryNextToScript = File('${scriptDir.path}\\sqlite3.dll');
+        final libraryNextToScript = File('${pathToSqliteDll}\\sqlite3.dll');
         return DynamicLibrary.open(libraryNextToScript.path);
     }
 ```
@@ -132,7 +159,7 @@ Connect to the database
     Orm.database = sqlite3.open("test.sqlite");
 ```
 
-Dispose the database after usage.
+Dispose the database after use.
 ```dart
     Orm.database.dispose();
 ```
