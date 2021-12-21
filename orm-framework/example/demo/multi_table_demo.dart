@@ -276,13 +276,14 @@ class MultiTableDemo extends DemoBase {
 
   void withCreateAndDropTable() {
     // ensure created table
-    print("\nSHOWING CREATE TABLE FUNCTIONALITY:");
+    print("\nSHOWING CREATE & DELETING TABLE FUNCTIONALITY:");
     printSeperator();
 
     Orm.ensureTableCreated<Car>();
-    print("\nTABLE CAR CREATED:");
+    print("\nTABLE CAR CREATED");
 
-    print("\n INSERT & LOAD CAR");
+    print("\nINSERT & LOAD CAR");
+    printSeperator();
     String carPK = "nice_id";
 
     var newCar = Car();

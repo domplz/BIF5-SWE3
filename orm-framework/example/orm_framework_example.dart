@@ -12,16 +12,16 @@ void main() {
   Orm.database = sqlite3.open("test.sqlite");
 
   var multiTableDemo = MultiTableDemo();
-  // multiTableDemo.showInsert();
-  // multiTableDemo.showSelect();
-  // multiTableDemo.showWithForeignKey();
-  // multiTableDemo.showWithForeignKeyList();
-  // multiTableDemo.showWithMToN();
-  // multiTableDemo.createAndDelete();
-  // multiTableDemo.withCache();
-  // multiTableDemo.withQuery();
-  // multiTableDemo.withSql();
-  // multiTableDemo.withLocking();
+  multiTableDemo.showInsert();
+  multiTableDemo.showSelect();
+  multiTableDemo.showWithForeignKey();
+  multiTableDemo.showWithForeignKeyList();
+  multiTableDemo.showWithMToN();
+  multiTableDemo.createAndDelete();
+  multiTableDemo.withCache();
+  multiTableDemo.withQuery();
+  multiTableDemo.withSql();
+  multiTableDemo.withLocking();
   multiTableDemo.withCreateAndDropTable();
 
   Orm.database.dispose();

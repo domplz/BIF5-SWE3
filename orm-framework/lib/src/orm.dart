@@ -178,7 +178,8 @@ class Orm {
 
     String createRowsSql = "";
     entity.internals.asMap().forEach((index, element) {
-      createRowsSql += "${element.columnName} ${element.columnType}";
+      // to upper the column name for working select
+      createRowsSql += "${element.columnName.toUpperCase()} ${element.columnType}";
 
       if (element.isPrimaryKey) {
         createRowsSql += " PRIMARY KEY";
