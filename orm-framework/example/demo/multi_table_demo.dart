@@ -4,6 +4,7 @@ import 'package:orm_framework/src/locking/object_locked_exception.dart';
 import 'package:orm_framework/src/orm.dart';
 import 'package:uuid/uuid.dart';
 
+import '../models/car.dart';
 import '../models/class.dart';
 import '../models/course.dart';
 import '../models/gender.dart';
@@ -271,6 +272,32 @@ class MultiTableDemo extends DemoBase {
 
     print("RELEASE LOCK:");
     Orm.release(t);
+  }
+
+  void withCreateAndDropTable() {
+    // ensure created table
+    print("\nSHOWING CREATE TABLE FUNCTIONALITY:");
+    printSeperator();
+
+    Orm.ensureTableCreated<Car>();
+    print("\nTABLE CAR CREATED:");
+
+    print("\n INSERT & LOAD CAR");
+    String carPK = "nice_id";
+
+    var newCar = Car();
+    newCar.id = carPK;
+    newCar.name = "skoda fabia";
+    newCar.productionDate = DateTime(2003, 11, 1);
+    newCar.horsePower = 103;
+    newCar.fuelConsumption = 5.5;
+
+    Orm.save(newCar);
+    var loadedCar = Orm.get<Car>(carPK);
+    printInstance(loadedCar, ["id", "name", "productionDate", "horsePower", "fuelConsumption"]);
+
+    Orm.ensureTableDeleted<Car>();
+    print("\nTABLE CAR DELETED:");
   }
 
   void _showTeacherInstances() {

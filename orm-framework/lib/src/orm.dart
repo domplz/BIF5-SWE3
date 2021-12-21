@@ -157,6 +157,47 @@ class Orm {
     return objects;
   }
 
+  static void ensureTableDeleted<T>() {
+    OrmEntity entity = Orm.getEntity(T);
+    String dropTableSql = "DROP TABLE IF EXISTS ${entity.tableName}";
+    Orm.database.execute(dropTableSql);
+  }
+
+  static void ensureTableCreated<T>() {
+    OrmEntity entity = Orm.getEntity(T);
+
+    // check, if entity is supported
+
+    // ignore: unnecessary_null_comparison
+    if (entity.primaryKey == null) {
+      throw Exception("EnsureTableCreated does not support entities without primary key!");
+    }
+    if (entity.externals.isNotEmpty) {
+      throw Exception("EnsureTableCreated does not support foreign keys!");
+    }
+
+    String createRowsSql = "";
+    entity.internals.asMap().forEach((index, element) {
+      createRowsSql += "${element.columnName} ${element.columnType}";
+
+      if (element.isPrimaryKey) {
+        createRowsSql += " PRIMARY KEY";
+      }
+
+      if (!element.isNullable) {
+        createRowsSql += " NOT NULL";
+      }
+
+      if (index < entity.internals.length - 1) {
+        createRowsSql += ", ";
+      }
+    });
+
+    String createSql = "CREATE TABLE IF NOT EXISTS ${entity.tableName} ( $createRowsSql )";
+
+    Orm.database.execute(createSql);
+  }
+
   /// Framework internal. Not intended for enduser usage.
   static Object createObject(Type t, Object primaryKey, List<Object>? localCache) {
     String commandText = Orm.getEntity(t).getSql() + " WHERE " + Orm.getEntity(t).primaryKey.columnName + " = ? ";
