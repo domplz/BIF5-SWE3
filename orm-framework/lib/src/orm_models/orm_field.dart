@@ -160,20 +160,14 @@ class OrmField {
 
   /// Gets value from object via reflection.
   Object? getValue(Object object) {
-    if (member is VariableMirror) {
-      InstanceMirror instanceMirror = reflect(object);
-      return instanceMirror.getField(member.simpleName).reflectee;
-    }
-    throw Exception("Other types than VariableMirrors are not supportet for getValue!");
+    InstanceMirror instanceMirror = reflect(object);
+    return instanceMirror.getField(member.simpleName).reflectee;
   }
 
   /// Sets a value to object via reflection.
   void setValue(Object object, Object value) {
-    if (member is VariableMirror) {
-      InstanceMirror instanceMirror = reflect(object);
-      instanceMirror.setField(member.simpleName, value);
-    }
-    throw Exception("Other types than VariableMirrors are not supportet for setValue!");
+    InstanceMirror instanceMirror = reflect(object);
+    instanceMirror.setField(member.simpleName, value);
   }
 
   /// Fills a foreign key list.
