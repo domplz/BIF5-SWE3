@@ -1,4 +1,4 @@
-# BIF5-SWE3 by Dominik Pilz
+# ORM Framework for Dart by Dominik Pilz
 
 You can find the framework documentation here:
 
